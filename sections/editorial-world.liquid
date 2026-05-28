@@ -1,0 +1,146 @@
+{{ 'section-editorial-world.css' | asset_url | stylesheet_tag }}
+
+<div class="editorial-world-container" style="background-color: {{ section.settings.bg_color }}; color: {{ section.settings.text_color }};">
+  <div class="editorial-hero">
+    {%- if section.settings.hero_image -%}
+      <img src="{{ section.settings.hero_image | image_url: width: 2400 }}" alt="{{ section.settings.title | escape }}" loading="lazy" class="editorial-hero-image">
+    {%- endif -%}
+    <div class="editorial-hero-content">
+      <h1 class="editorial-title">{{ section.settings.title }}</h1>
+      {%- if section.settings.drop_date != blank -%}
+        <div class="editorial-countdown-wrapper">
+          {% render 'drop-countdown', end_date: section.settings.drop_date %}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+  
+  <div class="editorial-body">
+    <div class="editorial-text">
+      {{ section.settings.body_text }}
+    </div>
+    {%- if section.settings.video_url != blank -%}
+      <div class="editorial-video">
+         <video src="{{ section.settings.video_url }}" autoplay loop muted playsinline></video>
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+<style>
+.editorial-world-container {
+  min-height: 100vh;
+  width: 100vw;
+  overflow-x: hidden;
+}
+.editorial-hero {
+  position: relative;
+  height: 80vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.editorial-hero-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  opacity: 0.6;
+}
+.editorial-hero-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 40px;
+}
+.editorial-title {
+  font-size: 80px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  margin-bottom: 40px;
+  line-height: 1;
+}
+.editorial-body {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 100px 40px;
+}
+.editorial-text {
+  font-size: 24px;
+  line-height: 1.5;
+  margin-bottom: 60px;
+  font-weight: 400;
+}
+.editorial-video video {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+}
+
+@media (max-width: 767px) {
+  .editorial-title { font-size: 48px; }
+  .editorial-text { font-size: 18px; padding: 40px 20px;}
+  .editorial-body { padding: 40px 0; }
+}
+</style>
+
+{% schema %}
+{
+  "name": "Editorial World",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "THE NEW DROP"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_image",
+      "label": "Hero Image"
+    },
+    {
+      "type": "text",
+      "id": "drop_date",
+      "label": "Drop Date (YYYY-MM-DDTHH:MM:SS)",
+      "info": "Leave blank to disable countdown"
+    },
+    {
+      "type": "richtext",
+      "id": "body_text",
+      "label": "Body Text",
+      "default": "<p>Editorial content goes here.</p>"
+    },
+    {
+      "type": "url",
+      "id": "video_url",
+      "label": "Direct Video URL (.mp4)"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background Color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#ffffff"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Editorial World",
+      "category": "Custom"
+    }
+  ]
+}
+{% endschema %}

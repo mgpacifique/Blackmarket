@@ -3,8 +3,13 @@
 
 <div class="homepage-carousel-container" data-section-id="{{ section.id }}" data-collection="{{ section.settings.collection }}">
   <div class="carousel-track">
-    {%- if section.settings.collection != blank and collections[section.settings.collection].products.size > 0 -%}
-      {%- for product in collections[section.settings.collection].products -%}
+    {%- assign carousel_collection = collections[section.settings.collection] -%}
+    {%- if carousel_collection == blank or carousel_collection.products.size == 0 -%}
+      {%- assign carousel_collection = collections['all'] -%}
+    {%- endif -%}
+
+    {%- if carousel_collection.products.size > 0 -%}
+      {%- for product in carousel_collection.products -%}
         <div class="carousel-slide" data-product-handle="{{ product.handle }}" data-product-id="{{ product.id }}">
           {% render 'product-card-float', product: product, label: product.metafields.antigravity.carousel_label.value | default: product.title %}
         </div>
@@ -12,7 +17,7 @@
     {%- else -%}
       <!-- Fallback or empty state -->
       <div class="carousel-track-empty">
-        <p>No products found in the selected collection.</p>
+        <p>No products found. Please add products to your store.</p>
       </div>
     {%- endif -%}
   </div>

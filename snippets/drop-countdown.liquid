@@ -1,0 +1,103 @@
+<div class="drop-countdown" data-end-date="{{ end_date }}">
+  <div class="countdown-block">
+    <span class="countdown-value days">00</span>
+    <span class="countdown-label">DAYS</span>
+  </div>
+  <div class="countdown-separator">:</div>
+  <div class="countdown-block">
+    <span class="countdown-value hours">00</span>
+    <span class="countdown-label">HRS</span>
+  </div>
+  <div class="countdown-separator">:</div>
+  <div class="countdown-block">
+    <span class="countdown-value minutes">00</span>
+    <span class="countdown-label">MIN</span>
+  </div>
+  <div class="countdown-separator">:</div>
+  <div class="countdown-block">
+    <span class="countdown-value seconds">00</span>
+    <span class="countdown-label">SEC</span>
+  </div>
+</div>
+
+<style>
+.drop-countdown {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 16px;
+  font-family: var(--font-heading-family);
+  color: var(--color-ink, #000);
+}
+.countdown-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 60px;
+}
+.countdown-value {
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.countdown-separator {
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.countdown-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: 700;
+  margin-top: 8px;
+  color: var(--color-ink-muted, #888);
+}
+@media (max-width: 767px) {
+  .countdown-value { font-size: 32px; }
+  .countdown-separator { font-size: 28px; }
+  .countdown-label { font-size: 9px; min-width: 40px;}
+}
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const countdowns = document.querySelectorAll('.drop-countdown');
+    
+    countdowns.forEach(countdown => {
+      // Expecting standard ISO format YYYY-MM-DDTHH:MM:SS or similar
+      const endDateStr = countdown.getAttribute('data-end-date');
+      if (!endDateStr) return;
+      
+      const endDate = new Date(endDateStr).getTime();
+      
+      const elements = {
+        days: countdown.querySelector('.days'),
+        hours: countdown.querySelector('.hours'),
+        minutes: countdown.querySelector('.minutes'),
+        seconds: countdown.querySelector('.seconds')
+      };
+      
+      const updateTimer = setInterval(() => {
+        const now = new Date().getTime();
+        const distance = endDate - now;
+        
+        if (distance < 0) {
+          clearInterval(updateTimer);
+          return;
+        }
+        
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        
+        if(elements.days) elements.days.textContent = days.toString().padStart(2, '0');
+        if(elements.hours) elements.hours.textContent = hours.toString().padStart(2, '0');
+        if(elements.minutes) elements.minutes.textContent = minutes.toString().padStart(2, '0');
+        if(elements.seconds) elements.seconds.textContent = seconds.toString().padStart(2, '0');
+      }, 1000);
+    });
+  });
+</script>

@@ -71,4 +71,13 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Init
   updateCarousel();
+
+  // Staggered reveal animation
+  setTimeout(() => {
+    slides.forEach((slide, index) => {
+      setTimeout(() => {
+        slide.classList.add('is-loaded');
+      }, index * 100); // 100ms stagger between slides
+    });
+  }, 100);
 });
