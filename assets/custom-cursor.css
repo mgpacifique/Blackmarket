@@ -1,0 +1,9 @@
+@media (pointer: fine) {
+  body {
+    cursor: url('finger.png') 8 0, auto;
+  }
+  
+  a, button, input, select, textarea, .nav-wheel-btn, .nav-wheel-center {
+    cursor: url('finger.png') 8 0, auto;
+  }
+}

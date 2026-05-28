@@ -1,0 +1,74 @@
+.nav-wheel {
+  --nav-wheel-size: 160px;
+  width: var(--nav-wheel-size);
+  height: var(--nav-wheel-size);
+  background-color: var(--color-nav-wheel, #2B2B2B);
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  user-select: none;
+}
+
+@media (max-width: 767px) {
+  .nav-wheel {
+    --nav-wheel-size: 140px;
+  }
+}
+
+.nav-wheel-btn {
+  position: absolute;
+  background: transparent;
+  border: none;
+  cursor: inherit; /* will use custom cursor */
+  color: var(--color-nav-text, #CCCCCC);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+}
+
+.nav-wheel-btn:focus-visible, .nav-wheel-center:focus-visible {
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+
+.nav-wheel-menu {
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-weight: 700;
+}
+
+.nav-wheel-prev {
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.nav-wheel-next {
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.nav-wheel-center {
+  width: 60px;
+  height: 60px;
+  background-color: var(--color-nav-center, #1A1A1A);
+  border-radius: 50%;
+  border: none;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+  cursor: inherit;
+  transition: transform 120ms ease, background-color 120ms ease;
+}
+
+.nav-wheel-center:active {
+  transform: scale(0.96);
+  background-color: #000;
+}

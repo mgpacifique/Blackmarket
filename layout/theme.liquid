@@ -39,6 +39,22 @@
       <script src="{{ 'animations.js' | asset_url }}" defer="defer"></script>
     {%- endif -%}
 
+    {{ 'custom-cursor.css' | asset_url | stylesheet_tag }}
+    <script src="{{ 'custom-cursor.js' | asset_url }}" defer="defer"></script>
+
+    <style>
+      :root {
+        --color-bg: {{ settings.color_bg | default: '#FFFFFF' }};
+        --color-surface: {{ settings.color_surface | default: '#F5F5F5' }};
+        --color-ink: {{ settings.color_ink | default: '#000000' }};
+        --color-ink-muted: {{ settings.color_ink_muted | default: '#888888' }};
+        --color-accent: {{ settings.color_accent | default: '#1A1A1A' }};
+        --color-nav-wheel: {{ settings.color_nav_wheel | default: '#2B2B2B' }};
+        --color-nav-center: {{ settings.color_nav_center | default: '#1A1A1A' }};
+        --color-nav-text: {{ settings.color_nav_text | default: '#CCCCCC' }};
+      }
+    </style>
+
     {{ content_for_header }}
 
     {%- liquid
@@ -307,13 +323,17 @@
       {%- render 'cart-drawer' -%}
     {%- endif -%}
 
-    {% sections 'header-group' %}
+    {%- unless template.name == 'index' -%}
+      {% sections 'header-group' %}
+    {%- endunless -%}
 
     <main id="MainContent" class="content-for-layout focus-none" role="main" tabindex="-1">
       {{ content_for_layout }}
     </main>
 
-    {% sections 'footer-group' %}
+    {%- unless template.name == 'index' -%}
+      {% sections 'footer-group' %}
+    {%- endunless -%}
 
     <ul hidden>
       <li id="a11y-refresh-page-message">{{ 'accessibility.refresh_page' | t }}</li>

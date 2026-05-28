@@ -1,0 +1,13 @@
+{{ 'nav-wheel.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'nav-wheel.js' | asset_url }}" defer="defer"></script>
+
+<div class="nav-wheel" aria-label="Navigation Wheel">
+  <button class="nav-wheel-btn nav-wheel-menu" aria-label="Open menu">MENU</button>
+  <button class="nav-wheel-btn nav-wheel-prev" aria-label="Previous product">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 19 2 12 11 5"></polygon><polygon points="22 19 13 12 22 5"></polygon></svg>
+  </button>
+  <button class="nav-wheel-btn nav-wheel-next" aria-label="Next product">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 19 22 12 13 5"></polygon><polygon points="2 19 11 12 2 5"></polygon></svg>
+  </button>
+  <button class="nav-wheel-center" aria-label="View product"></button>
+</div>

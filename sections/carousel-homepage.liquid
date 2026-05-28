@@ -1,0 +1,75 @@
+{{ 'carousel.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'carousel.js' | asset_url }}" defer="defer"></script>
+
+<div class="homepage-carousel-container" data-section-id="{{ section.id }}" data-collection="{{ section.settings.collection }}">
+  <div class="carousel-track">
+    {%- if section.settings.collection != blank and collections[section.settings.collection].products.size > 0 -%}
+      {%- for product in collections[section.settings.collection].products -%}
+        <div class="carousel-slide" data-product-handle="{{ product.handle }}" data-product-id="{{ product.id }}">
+          {% render 'product-card-float', product: product, label: product.metafields.antigravity.carousel_label.value | default: product.title %}
+        </div>
+      {%- endfor -%}
+    {%- else -%}
+      <!-- Fallback or empty state -->
+      <div class="carousel-track-empty">
+        <p>No products found in the selected collection.</p>
+      </div>
+    {%- endif -%}
+  </div>
+
+  <div class="carousel-ui-overlay">
+    <div class="carousel-logo">
+      <a href="{{ routes.root_url }}">
+        {%- if settings.logo != blank -%}
+          <img src="{{ settings.logo | image_url: width: 200 }}" alt="{{ shop.name }}" width="{{ settings.logo.width }}" height="{{ settings.logo.height }}">
+        {%- else -%}
+          <span class="h2">{{ shop.name }}</span>
+        {%- endif -%}
+      </a>
+    </div>
+    
+    <div class="carousel-active-label" id="ActiveProductLabel">
+       <!-- Populated by JS -->
+    </div>
+
+    <!-- Navigation Wheel Component -->
+    <div class="nav-wheel-wrapper">
+      {% render 'nav-wheel' %}
+    </div>
+  </div>
+
+  <!-- Menu Overlay -->
+  <div class="menu-overlay" id="MenuOverlay" hidden>
+    <div class="menu-overlay-inner">
+      <ul class="collection-list">
+        {%- for collection in collections -%}
+          <li>
+            <a href="#" data-collection-handle="{{ collection.handle }}" class="menu-collection-link">
+              {{ collection.title }}
+            </a>
+          </li>
+        {%- endfor -%}
+      </ul>
+      <button class="menu-close-btn" aria-label="Close menu">X</button>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Carousel Homepage",
+  "settings": [
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Featured Collection (Default)"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Carousel Homepage",
+      "category": "Custom"
+    }
+  ]
+}
+{% endschema %}

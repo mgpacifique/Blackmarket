@@ -1,0 +1,17 @@
+<div class="product-card-float" data-url="{{ product.url }}" data-label="{{ label | escape }}">
+  <a href="{{ product.url }}" class="product-card-float-link" aria-label="Go to {{ product.title }}">
+    <div class="product-card-image-wrapper">
+      {%- if product.featured_image -%}
+        <img 
+          src="{{ product.featured_image | image_url: width: 2000 }}" 
+          alt="{{ product.title | escape }} — {{ product.options | join: ' ' }}" 
+          loading="lazy" 
+          width="{{ product.featured_image.width }}" 
+          height="{{ product.featured_image.height }}"
+          class="float-image" />
+      {%- else -%}
+        {{ 'product-1' | placeholder_svg_tag: 'float-image placeholder' }}
+      {%- endif -%}
+    </div>
+  </a>
+</div>
