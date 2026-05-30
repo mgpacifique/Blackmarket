@@ -10,8 +10,8 @@
 
     {%- if carousel_collection.products.size > 0 -%}
       {%- for product in carousel_collection.products -%}
-        <div class="carousel-slide" data-product-handle="{{ product.handle }}" data-product-id="{{ product.id }}">
-          {% render 'product-card-float', product: product, label: product.metafields.antigravity.carousel_label.value | default: product.title %}
+        <div class="carousel-slide {% if forloop.first %}is-active{% endif %}" data-product-handle="{{ product.handle }}" data-product-id="{{ product.id }}" {% unless forloop.first %}aria-hidden="true"{% endunless %}>
+          {% render 'product-card-float', product: product, label: product.metafields.antigravity.carousel_label.value | default: product.title, loop_index: forloop.index %}
         </div>
       {%- endfor -%}
     {%- else -%}
@@ -44,7 +44,7 @@
   </div>
 
   <!-- Menu Overlay -->
-  <div class="menu-overlay" id="MenuOverlay" hidden>
+  <div class="menu-overlay" id="MenuOverlay" role="dialog" aria-modal="true" aria-label="Collections Menu" hidden>
     <div class="menu-overlay-inner">
       <ul class="collection-list">
         {%- for collection in collections -%}

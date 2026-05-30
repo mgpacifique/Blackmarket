@@ -24,21 +24,39 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (menuBtn && menuOverlay) {
+    const openMenu = () => {
+      menuOverlay.hidden = false;
+      const firstLink = menuOverlay.querySelector('a, button');
+      if (firstLink) firstLink.focus();
+    };
+
+    const closeMenu = () => {
+      menuOverlay.hidden = true;
+      menuBtn.focus();
+    };
+
     menuBtn.addEventListener('click', () => {
-      menuOverlay.hidden = !menuOverlay.hidden;
+      if (menuOverlay.hidden) openMenu(); else closeMenu();
     });
 
     const closeBtn = menuOverlay.querySelector('.menu-close-btn');
     if (closeBtn) {
       closeBtn.addEventListener('click', () => {
-        menuOverlay.hidden = true;
+        closeMenu();
       });
     }
 
     // click outside
     menuOverlay.addEventListener('click', (e) => {
       if (e.target === menuOverlay) {
-        menuOverlay.hidden = true;
+        closeMenu();
+      }
+    });
+
+    // Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !menuOverlay.hidden) {
+        closeMenu();
       }
     });
   }

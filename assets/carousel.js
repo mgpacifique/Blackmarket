@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentIndex = 0;
 
   function updateCarousel() {
-    // 60vw width for desktop, 80vw for mobile. Let's just measure the slide width.
     const slideWidth = slides[0].getBoundingClientRect().width;
     const centerOffset = (window.innerWidth - slideWidth) / 2;
     const translateX = -(currentIndex * slideWidth) + centerOffset;
@@ -19,6 +18,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // respect prefers-reduced-motion in css, but set style here
     track.style.transform = `translateX(${translateX}px)`;
     
+    // Update ARIA visibility for accessibility
+    slides.forEach((slide, index) => {
+      const link = slide.querySelector('.product-card-float-link');
+      if (index === currentIndex) {
+        slide.setAttribute('aria-hidden', 'false');
+        slide.classList.add('is-active');
+        if (link) link.setAttribute('tabindex', '0');
+      } else {
+        slide.setAttribute('aria-hidden', 'true');
+        slide.classList.remove('is-active');
+        if (link) link.setAttribute('tabindex', '-1');
+      }
+    });
+
     const activeSlide = slides[currentIndex];
     const cardFloat = activeSlide.querySelector('.product-card-float');
     if (cardFloat) {

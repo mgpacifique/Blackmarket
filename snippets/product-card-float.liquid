@@ -1,11 +1,15 @@
 <div class="product-card-float" data-url="{{ product.url }}" data-label="{{ label | escape }}">
-  <a href="{{ product.url }}" class="product-card-float-link" aria-label="Go to {{ product.title }}">
+  <a href="{{ product.url }}" class="product-card-float-link" aria-label="View product {{ product.title }}">
     <div class="product-card-image-wrapper">
       {%- if product.featured_image -%}
         <img 
-          src="{{ product.featured_image | image_url: width: 2000 }}" 
+          srcset="{{ product.featured_image | image_url: width: 600 }} 600w,
+                  {{ product.featured_image | image_url: width: 1000 }} 1000w,
+                  {{ product.featured_image | image_url: width: 2000 }} 2000w"
+          sizes="(min-width: 1024px) 60vw, 90vw"
+          src="{{ product.featured_image | image_url: width: 1000 }}" 
           alt="{{ product.title | escape }} — {{ product.options | join: ' ' }}" 
-          loading="lazy" 
+          {% if loop_index == 1 %}fetchpriority="high"{% else %}loading="lazy"{% endif %} 
           width="{{ product.featured_image.width }}" 
           height="{{ product.featured_image.height }}"
           class="float-image" />
