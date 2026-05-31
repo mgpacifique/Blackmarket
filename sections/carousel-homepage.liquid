@@ -3,23 +3,19 @@
 
 <div class="homepage-carousel-container" data-section-id="{{ section.id }}" data-collection="{{ section.settings.collection }}">
   <div class="carousel-track">
-    {%- assign carousel_collection = collections[section.settings.collection] -%}
-    {%- if carousel_collection == blank or carousel_collection.products.size == 0 -%}
-      {%- assign carousel_collection = collections['all'] -%}
-    {%- endif -%}
+    {%- assign mock_images = "6756d28091cff91afd065e70163ee80c36549d8e-4096x4096.jpg,ae76f52285c8a241fa68044bbd3230c1e5f0912e-4096x4096.jpg,b293dad484f050100f9917b7d283dc63e1e400a9-1000x1000.jpg,c77f09a021af7a75a05d34e2d0f4a8964c719484-4096x4096.jpg,cb92d6edd9da527dd112a83c1aaf8445074c4476-1000x1000.jpg,df30d4a5bae9306d9d1400f5e1823b2d4fe75390-4096x4096.jpg" | split: "," -%}
 
-    {%- if carousel_collection.products.size > 0 -%}
-      {%- for product in carousel_collection.products -%}
-        <div class="carousel-slide {% if forloop.first %}is-active{% endif %}" data-product-handle="{{ product.handle }}" data-product-id="{{ product.id }}" {% unless forloop.first %}aria-hidden="true"{% endunless %}>
-          {% render 'product-card-float', product: product, label: product.metafields.antigravity.carousel_label.value | default: product.title, loop_index: forloop.index %}
+    {%- for img in mock_images -%}
+      <div class="carousel-slide {% if forloop.first %}is-active{% endif %}" data-product-handle="mock-{{ forloop.index }}" data-product-id="mock-{{ forloop.index }}" {% unless forloop.first %}aria-hidden="true"{% endunless %}>
+        <div class="product-card-float" data-url="#" data-label="Mock Product {{ forloop.index }}">
+          <a href="#" class="product-card-float-link" aria-label="View product {{ forloop.index }}">
+            <div class="product-card-image-wrapper">
+              <img src="{{ img | asset_url }}" alt="Mock Image {{ forloop.index }}" class="float-image" />
+            </div>
+          </a>
         </div>
-      {%- endfor -%}
-    {%- else -%}
-      <!-- Fallback or empty state -->
-      <div class="carousel-track-empty">
-        <p>No products found. Please add products to your store.</p>
       </div>
-    {%- endif -%}
+    {%- endfor -%}
   </div>
 
   <div class="carousel-ui-overlay">
