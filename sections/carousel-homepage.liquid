@@ -1,75 +1,53 @@
-{{ 'carousel.css' | asset_url | stylesheet_tag }}
-<script src="{{ 'carousel.js' | asset_url }}" defer="defer"></script>
-
-<div class="homepage-carousel-container" data-section-id="{{ section.id }}" data-collection="{{ section.settings.collection }}">
-  <div class="carousel-track">
-    {%- assign mock_images = "6756d28091cff91afd065e70163ee80c36549d8e-4096x4096.jpg,ae76f52285c8a241fa68044bbd3230c1e5f0912e-4096x4096.jpg,b293dad484f050100f9917b7d283dc63e1e400a9-1000x1000.jpg,c77f09a021af7a75a05d34e2d0f4a8964c719484-4096x4096.jpg,cb92d6edd9da527dd112a83c1aaf8445074c4476-1000x1000.jpg,df30d4a5bae9306d9d1400f5e1823b2d4fe75390-4096x4096.jpg" | split: "," -%}
-
-    {%- for img in mock_images -%}
-      <div class="carousel-slide {% if forloop.first %}is-active{% endif %}" data-product-handle="mock-{{ forloop.index }}" data-product-id="mock-{{ forloop.index }}" {% unless forloop.first %}aria-hidden="true"{% endunless %}>
-        <div class="product-card-float" data-url="#" data-label="Mock Product {{ forloop.index }}">
-          <a href="#" class="product-card-float-link" aria-label="View product {{ forloop.index }}">
-            <div class="product-card-image-wrapper">
-              <img src="{{ img | asset_url }}" alt="Mock Image {{ forloop.index }}" class="float-image" />
+<div class="fixed inset-0 pointer-events-none">
+  <div class="h-full w-full pointer-events-auto" id="coverflow-container">
+    <div class="coverflow-drag -translate-1/2 absolute top-[40%] left-1/2 h-[440px] w-full cursor-grab select-none z-10"></div>
+    <ul class="coverflow-wrapper absolute top-[40%] left-1/2 z-0">
+      {% for product in section.settings.collection.products %}
+        <li id="product-{{ product.id }}" class="absolute top-0 left-0 select-none coverflow-item" data-index="{{ forloop.index0 }}" data-url="{{ product.url }}">
+          <div class="-translate-1/2 absolute top-0 left-0 aspect-square w-[100px] coverflow-scale-wrapper transition-transform" style="scale:var(--scale,1); transform: translate3d(var(--x,0), 0, var(--z,0)) rotateY(var(--rotY,0));">
+            <div class="absolute inset-0 overflow-clip bg-white" style="border-radius:calc(0.25rem/var(--scale,1))">
+              <button type="button" class="absolute inset-0 cursor-pointer appearance-none" aria-label="Open details for {{ product.title | escape }}" onclick="window.location.href='{{ product.url }}'">
+                <picture class="pointer-events-none absolute inset-0 [&>img]:[border-radius:calc(0.25rem/var(--scale,1))]">
+                  {% if product.featured_image %}
+                    <img class="block absolute h-full w-full object-cover" alt="{{ product.title | escape }}" src="{{ product.featured_image | image_url: width: 640 }}" decoding="sync" fetchpriority="high" width="322" height="322"/>
+                  {% else %}
+                    <div class="flex h-full items-center justify-center bg-gray-200 text-gray-500 text-xs">{{ product.title }}</div>
+                  {% endif %}
+                </picture>
+              </button>
             </div>
-          </a>
-        </div>
-      </div>
-    {%- endfor -%}
-  </div>
-
-  <div class="carousel-ui-overlay">
-    <div class="carousel-logo">
-      <a href="{{ routes.root_url }}">
-        {%- if settings.logo != blank -%}
-          <img src="{{ settings.logo | image_url: width: 200 }}" alt="{{ shop.name }}" width="{{ settings.logo.width }}" height="{{ settings.logo.height }}">
-        {%- else -%}
-          <span class="h2">{{ shop.name }}</span>
-        {%- endif -%}
-      </a>
-    </div>
-    
-    <div class="carousel-active-label" id="ActiveProductLabel">
-       <!-- Populated by JS -->
-    </div>
-
-    <!-- Navigation Wheel Component -->
-    <div class="nav-wheel-wrapper">
-      {% render 'nav-wheel' %}
-    </div>
-  </div>
-
-  <!-- Menu Overlay -->
-  <div class="menu-overlay" id="MenuOverlay" role="dialog" aria-modal="true" aria-label="Collections Menu" hidden>
-    <div class="menu-overlay-inner">
-      <ul class="collection-list">
-        {%- for collection in collections -%}
-          <li>
-            <a href="#" data-collection-handle="{{ collection.handle }}" class="menu-collection-link">
-              {{ collection.title }}
-            </a>
+          </div>
+        </li>
+      {% else %}
+        {% for i in (1..6) %}
+          <li class="absolute top-0 left-0 select-none coverflow-item" data-index="{{ forloop.index0 }}">
+            <div class="-translate-1/2 absolute top-0 left-0 aspect-square w-[100px] coverflow-scale-wrapper transition-transform" style="scale:var(--scale,1); transform: translate3d(var(--x,0), 0, var(--z,0)) rotateY(var(--rotY,0));">
+              <div class="absolute inset-0 overflow-clip bg-[#C6C6C6] flex items-center justify-center text-white font-bold" style="border-radius:calc(0.25rem/var(--scale,1))">
+                Item {{ i }}
+              </div>
+            </div>
           </li>
-        {%- endfor -%}
-      </ul>
-      <button class="menu-close-btn" aria-label="Close menu">X</button>
-    </div>
+        {% endfor %}
+      {% endfor %}
+    </ul>
   </div>
 </div>
 
+<script src="{{ 'coverflow.js' | asset_url }}" defer></script>
+
 {% schema %}
 {
-  "name": "Carousel Homepage",
+  "name": "Damso Coverflow",
   "settings": [
     {
       "type": "collection",
       "id": "collection",
-      "label": "Featured Collection (Default)"
+      "label": "Collection to display"
     }
   ],
   "presets": [
     {
-      "name": "Carousel Homepage",
-      "category": "Custom"
+      "name": "Damso Coverflow"
     }
   ]
 }

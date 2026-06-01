@@ -1,0 +1,114 @@
+<div class="pointer-events-none fixed bottom-0 left-0 z-100 flex w-full justify-center">
+  <div class="ipod-nav relative mb-24 aspect-square w-180 select-none rounded-full pointer-events-auto">
+    <div class="ipod-menu-wrapper -top-52 absolute left-1/2 z-0 ">
+      <nav class="-translate-x-1/2 absolute top-0 left-0 mb-8">
+        <div class="ipod-menu flex h-44 w-[3rem] translate-y-[4.4rem] items-center justify-center gap-20 overflow-clip rounded-lg px-16 bg-grey-60 transition-transform duration-500" style="width: auto;">
+          
+          {% for block in section.blocks %}
+            <a aria-label="{{ block.settings.title }}" class="group relative items-center appearance-none cursor-pointer overflow-clip disabled:pointer-events-none pointer-events-auto focus-visible:outline-2 outline-black outline-offset-4 inline-block rounded-sm px-10 py-7 font-bold text-10 uppercase leading-none transition-colors delay-100 duration-300 bg-grey-60 text-white hover:bg-grey-50" href="{{ block.settings.url }}">{{ block.settings.title }}</a>
+          {% endfor %}
+
+          <button class="group relative items-center appearance-none cursor-pointer overflow-clip disabled:pointer-events-none pointer-events-auto focus-visible:outline-2 outline-black outline-offset-4 inline-block py-6 pr-8">
+            <div class="relative flex h-30 w-32 items-end">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="#EDEDED" viewBox="0 0 24 24" role="presentation" class="w-24"><path d="M9.862 18.692a1.31 1.31 0 0 1-.809 1.209 1.31 1.31 0 0 1-1.428-.284 1.307 1.307 0 0 1 .927-2.232 1.31 1.31 0 0 1 1.31 1.307m7.207-1.307a1.31 1.31 0 0 0-1.21.807 1.305 1.305 0 0 0 .954 1.783 1.31 1.31 0 0 0 1.345-.556 1.306 1.306 0 0 0-1.09-2.034m3.907-10.287-2.1 7.542a1.966 1.966 0 0 1-1.889 1.437H8.892a1.97 1.97 0 0 1-1.896-1.437L4.123 4.308H2.655A.656.656 0 0 1 2 3.654.653.653 0 0 1 2.655 3h1.966a.656.656 0 0 1 .631.479l.776 2.79h14.317a.656.656 0 0 1 .631.829m-1.494.479H6.392l1.869 6.713a.654.654 0 0 0 .631.48h8.095a.655.655 0 0 0 .631-.48z"></path><path d="M5.672 6.886C6.4 9.5 7.855 14.819 7.855 15.168h10.046l2.621-8.282z"></path></svg>
+              <div class="absolute top-0 right-0 flex h-18 w-18 items-center justify-center rounded-full bg-grey-40 font-medium text-10 leading-none text-white">
+                <span class="">{{ cart.item_count }}</span>
+              </div>
+            </div>
+          </button>
+        </div>
+      </nav>
+    </div>
+    
+    <div class="ipod-menu-back -translate-1/2 absolute inset-1/2 z-1 h-[11.25rem] w-[11.25rem] overflow-clip rounded-full bg-gradient-to-b transition-colors duration-500 from-ipod-wheel-top to-ipod-wheel-bottom"></div>
+    <div class="ipod-wheel-draggable -translate-1/2 absolute inset-1/2 z-2 h-full w-full touch-none overflow-clip rounded-full cursor-grab"></div>
+    
+    <div class="ipod-center absolute inset-1/2 z-1 transition-opacity" style="opacity: 0;">
+      <div class="ipod-cursor -translate-1/2 absolute top-0 left-0 mt-58 aspect-square w-50 rounded-full">
+        <img alt="finger cursor" loading="lazy" width="55" height="55" decoding="async" class="opacity-50" src="{{ 'doigt.0474ed6d.png' | asset_url }}"/>
+      </div>
+    </div>
+    
+    <div class="ipod-arrows pointer-events-none absolute inset-0 z-4 flex items-center justify-between transition-opacity duration-800 ease-expo-out">
+      <button class="group relative items-center appearance-none cursor-pointer overflow-clip disabled:pointer-events-none pointer-events-auto focus-visible:outline-2 outline-black outline-offset-4 inline-block ipod-left group p-6 outline-none">
+        <div class="ipod-left-arrow relative h-30 w-30 [&>svg]:fill-grey-20 [&>svg]:group-hover:fill-white">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="#D0D0D0" viewBox="0 0 25 25" role="presentation" class="w-full rotate-180"><path d="m21.428 12.281-7.313 4.14v-8.28zM13.25 12.281l-7.312 4.14v-8.28z"></path></svg>
+        </div>
+      </button>
+      <button class="group relative items-center appearance-none cursor-pointer disabled:pointer-events-none pointer-events-auto focus-visible:outline-2 outline-black outline-offset-4 inline-block ipod-right-btn group overflow-clip p-6 outline-none">
+        <div class="ipod-right-arrow relative h-30 w-30 [&>svg]:fill-grey-20 [&>svg]:group-hover:fill-white">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="#D0D0D0" viewBox="0 0 25 25" role="presentation" class="w-full"><path d="m21.428 12.281-7.313 4.14v-8.28zM13.25 12.281l-7.312 4.14v-8.28z"></path></svg>
+        </div>
+      </button>
+    </div>
+    
+    <div class="ipod-menu-btn pointer-events-none absolute inset-0 z-2 flex items-start justify-center">
+      <button class="group items-center appearance-none cursor-pointer disabled:pointer-events-none pointer-events-auto focus-visible:outline-2 outline-black outline-offset-4 inline-block relative mt-6 overflow-clip px-8 py-10 font-bold text-11 uppercase leading-none outline-none transition-opacity duration-800 ease-expo-out text-grey-20 hover:text-white">
+        <div class="ipod-menu-label px-12">
+          <div class="relative"><span>menu</span></div>
+        </div>
+      </button>
+    </div>
+    
+    <div class="ipod-menu-front -translate-1/2 absolute inset-1/2 z-3 h-[4.375rem] w-[4.375rem] overflow-clip rounded-full border transition-colors duration-500 border-black bg-ipod-dark-grey">
+      <div class="absolute inset-0 z-4 flex items-center justify-center overflow-clip rounded-full">
+      </div>
+      <button class="ipod-center-btn group items-center appearance-none cursor-pointer disabled:pointer-events-none pointer-events-auto focus-visible:outline-2 outline-black outline-offset-4 inline-block ipod-center-over absolute inset-0 z-10 overflow-clip rounded-full outline-none transition-colors duration-500 ease-circ-out hover:bg-grey-20/10 hover:duration-75"></button>
+    </div>
+  </div>
+</div>
+
+<script src="{{ 'ipod-wheel.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "iPod Navigation",
+  "blocks": [
+    {
+      "type": "link",
+      "name": "Navigation Link",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Link Title",
+          "default": "Shop"
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": "Link URL"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "iPod Navigation",
+      "blocks": [
+        {
+          "type": "link",
+          "settings": {
+            "title": "Shop",
+            "url": "/"
+          }
+        },
+        {
+          "type": "link",
+          "settings": {
+            "title": "World",
+            "url": "/"
+          }
+        },
+        {
+          "type": "link",
+          "settings": {
+            "title": "Tournée",
+            "url": "/"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
