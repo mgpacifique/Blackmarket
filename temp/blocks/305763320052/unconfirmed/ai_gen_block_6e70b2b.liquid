@@ -1,6 +1,443 @@
+{% doc %}
+  @prompt
+    Fix the iPod Navigation section (section ID: "ipod-navigation"). The navigation label at the top of the iPod wheel is misaligned — it appears too high and not properly centered above the wheel. There is also a visible blue horizontal line cutting through the wheel area suggesting a layout/positioning issue. Fix the label alignment so it is properly centered and positioned relative to the iPod click wheel, and remove any unwanted lines or borders appearing in the layout.
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ipod-navigation-{{ ai_gen_id }} {
+    display: block;
+    width: {{ block.settings.desktop_width_percent }}%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
+
+  .ipod-container-{{ ai_gen_id }} {
+    max-width: 400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+  }
+
+  .ipod-label-{{ ai_gen_id }} {
+    font-size: {{ block.settings.label_font_size }}px;
+    font-weight: 600;
+    color: {{ block.settings.label_color }};
+    text-align: center;
+    margin: 0;
+    padding: 0;
+  }
+
+  .ipod-wheel-container-{{ ai_gen_id }} {
+    position: relative;
+    width: {{ block.settings.wheel_size }}px;
+    height: {{ block.settings.wheel_size }}px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ipod-wheel-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: {{ block.settings.wheel_color }};
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), inset 0 2px 10px rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ipod-center-button-{{ ai_gen_id }} {
+    position: absolute;
+    width: 35%;
+    height: 35%;
+    border-radius: 50%;
+    background: {{ block.settings.center_button_color }};
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    z-index: 2;
+  }
+
+  .ipod-center-button-{{ ai_gen_id }}:hover {
+    transform: scale(1.05);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  .ipod-nav-item-{{ ai_gen_id }} {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    z-index: 1;
+  }
+
+  .ipod-nav-item-{{ ai_gen_id }}:hover {
+    transform: scale(1.1);
+  }
+
+  .ipod-nav-item-{{ ai_gen_id }}--top {
+    top: 15%;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .ipod-nav-item-{{ ai_gen_id }}--top:hover {
+    transform: translateX(-50%) scale(1.1);
+  }
+
+  .ipod-nav-item-{{ ai_gen_id }}--right {
+    right: 15%;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .ipod-nav-item-{{ ai_gen_id }}--right:hover {
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  .ipod-nav-item-{{ ai_gen_id }}--bottom {
+    bottom: 15%;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .ipod-nav-item-{{ ai_gen_id }}--bottom:hover {
+    transform: translateX(-50%) scale(1.1);
+  }
+
+  .ipod-nav-item-{{ ai_gen_id }}--left {
+    left: 15%;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .ipod-nav-item-{{ ai_gen_id }}--left:hover {
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  .ipod-nav-text-{{ ai_gen_id }} {
+    font-size: {{ block.settings.nav_font_size }}px;
+    font-weight: 500;
+    color: {{ block.settings.nav_text_color }};
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .ipod-nav-icon-{{ ai_gen_id }} {
+    width: 24px;
+    height: 24px;
+    color: {{ block.settings.nav_text_color }};
+  }
+
+  @media screen and (max-width: 749px) {
+    .ipod-wheel-container-{{ ai_gen_id }} {
+      width: {{ block.settings.wheel_size | times: 0.8 }}px;
+      height: {{ block.settings.wheel_size | times: 0.8 }}px;
+    }
+
+    .ipod-nav-text-{{ ai_gen_id }} {
+      font-size: {{ block.settings.nav_font_size | times: 0.9 }}px;
+    }
+
+    .ipod-label-{{ ai_gen_id }} {
+      font-size: {{ block.settings.label_font_size | times: 0.9 }}px;
+    }
+  }
+{% endstyle %}
+
+<ipod-navigation-{{ ai_gen_id }} class="ipod-navigation-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ipod-container-{{ ai_gen_id }}">
+    {% if block.settings.show_label %}
+      <h3 class="ipod-label-{{ ai_gen_id }}">{{ block.settings.label_text }}</h3>
+    {% endif %}
+
+    <div class="ipod-wheel-container-{{ ai_gen_id }}">
+      <div class="ipod-wheel-{{ ai_gen_id }}">
+        <a
+          href="{{ block.settings.top_link }}"
+          class="ipod-nav-item-{{ ai_gen_id }} ipod-nav-item-{{ ai_gen_id }}--top"
+          aria-label="{{ block.settings.top_text }}"
+        >
+          {% if block.settings.show_icons %}
+            <svg class="ipod-nav-icon-{{ ai_gen_id }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+            </svg>
+          {% else %}
+            <span class="ipod-nav-text-{{ ai_gen_id }}">{{ block.settings.top_text }}</span>
+          {% endif %}
+        </a>
+
+        <a
+          href="{{ block.settings.right_link }}"
+          class="ipod-nav-item-{{ ai_gen_id }} ipod-nav-item-{{ ai_gen_id }}--right"
+          aria-label="{{ block.settings.right_text }}"
+        >
+          {% if block.settings.show_icons %}
+            <svg class="ipod-nav-icon-{{ ai_gen_id }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          {% else %}
+            <span class="ipod-nav-text-{{ ai_gen_id }}">{{ block.settings.right_text }}</span>
+          {% endif %}
+        </a>
+
+        <a
+          href="{{ block.settings.bottom_link }}"
+          class="ipod-nav-item-{{ ai_gen_id }} ipod-nav-item-{{ ai_gen_id }}--bottom"
+          aria-label="{{ block.settings.bottom_text }}"
+        >
+          {% if block.settings.show_icons %}
+            <svg class="ipod-nav-icon-{{ ai_gen_id }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          {% else %}
+            <span class="ipod-nav-text-{{ ai_gen_id }}">{{ block.settings.bottom_text }}</span>
+          {% endif %}
+        </a>
+
+        <a
+          href="{{ block.settings.left_link }}"
+          class="ipod-nav-item-{{ ai_gen_id }} ipod-nav-item-{{ ai_gen_id }}--left"
+          aria-label="{{ block.settings.left_text }}"
+        >
+          {% if block.settings.show_icons %}
+            <svg class="ipod-nav-icon-{{ ai_gen_id }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          {% else %}
+            <span class="ipod-nav-text-{{ ai_gen_id }}">{{ block.settings.left_text }}</span>
+          {% endif %}
+        </a>
+
+        <a
+          href="{{ block.settings.center_link }}"
+          class="ipod-center-button-{{ ai_gen_id }}"
+          aria-label="Center button"
+        ></a>
+      </div>
+    </div>
+  </div>
+</ipod-navigation-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class IpodNavigation{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        this.centerButton = this.querySelector('.ipod-center-button-{{ ai_gen_id }}');
+        this.navItems = this.querySelectorAll('.ipod-nav-item-{{ ai_gen_id }}');
+        
+        this.setupEventListeners();
+      }
+
+      setupEventListeners() {
+        if (this.centerButton) {
+          this.centerButton.addEventListener('click', (e) => {
+            this.centerButton.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+              this.centerButton.style.transform = 'scale(1)';
+            }, 150);
+          });
+        }
+
+        this.navItems.forEach((item) => {
+          item.addEventListener('click', (e) => {
+            item.style.opacity = '0.7';
+            setTimeout(() => {
+              item.style.opacity = '1';
+            }, 150);
+          });
+        });
+      }
+    }
+
+    customElements.define('ipod-navigation-{{ ai_gen_id }}', IpodNavigation{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "iPod navigation",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_label",
+      "label": "Show label",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "label_text",
+      "label": "Label text",
+      "default": "MENU"
+    },
+    {
+      "type": "range",
+      "id": "label_font_size",
+      "label": "Label font size",
+      "min": 12,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "color",
+      "id": "label_color",
+      "label": "Label color",
+      "default": "#121212"
+    },
+    {
+      "type": "header",
+      "content": "Wheel style"
+    },
+    {
+      "type": "range",
+      "id": "wheel_size",
+      "label": "Wheel size",
+      "min": 200,
+      "max": 400,
+      "step": 20,
+      "unit": "px",
+      "default": 300
+    },
+    {
+      "type": "color",
+      "id": "wheel_color",
+      "label": "Wheel color",
+      "default": "#e8e8e8"
+    },
+    {
+      "type": "color",
+      "id": "center_button_color",
+      "label": "Center button color",
+      "default": "#d0d0d0"
+    },
+    {
+      "type": "range",
+      "id": "desktop_width_percent",
+      "label": "Desktop width",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "header",
+      "content": "Navigation items"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_icons",
+      "label": "Show icons instead of text",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "nav_font_size",
+      "label": "Navigation font size",
+      "min": 10,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "color",
+      "id": "nav_text_color",
+      "label": "Navigation text color",
+      "default": "#666666"
+    },
+    {
+      "type": "header",
+      "content": "Top navigation"
+    },
+    {
+      "type": "text",
+      "id": "top_text",
+      "label": "Text",
+      "default": "Menu"
+    },
+    {
+      "type": "url",
+      "id": "top_link",
+      "label": "Link"
+    },
+    {
+      "type": "header",
+      "content": "Right navigation"
+    },
+    {
+      "type": "text",
+      "id": "right_text",
+      "label": "Text",
+      "default": "Next"
+    },
+    {
+      "type": "url",
+      "id": "right_link",
+      "label": "Link"
+    },
+    {
+      "type": "header",
+      "content": "Bottom navigation"
+    },
+    {
+      "type": "text",
+      "id": "bottom_text",
+      "label": "Text",
+      "default": "Play"
+    },
+    {
+      "type": "url",
+      "id": "bottom_link",
+      "label": "Link"
+    },
+    {
+      "type": "header",
+      "content": "Left navigation"
+    },
+    {
+      "type": "text",
+      "id": "left_text",
+      "label": "Text",
+      "default": "Back"
+    },
+    {
+      "type": "url",
+      "id": "left_link",
+      "label": "Link"
+    },
+    {
+      "type": "header",
+      "content": "Center button"
+    },
+    {
+      "type": "url",
+      "id": "center_link",
+      "label": "Link"
+    }
+  ],
+  "presets": [
+    {
+      "name": "iPod navigation"
+    }
+  ]
+}
 {% endschema %}
