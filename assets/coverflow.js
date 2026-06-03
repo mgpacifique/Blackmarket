@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let currentIndex = 0;
   const totalItems = items.length;
-  const itemWidth = 260; // matches the 220px card + breathing room
+  const itemWidth = 320; // matches the 300px card + breathing room
 
   const titleEl = document.getElementById('product-display-title');
 
