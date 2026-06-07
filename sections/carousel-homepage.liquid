@@ -10,7 +10,7 @@
         <li id="product-{{ product.id }}" class="absolute top-0 left-0 select-none coverflow-item" data-index="{{ forloop.index0 }}" data-url="{{ product.url }}" data-title="{{ product.title | escape }}">
           <div class="-translate-1/2 absolute top-0 left-0 aspect-square coverflow-scale-wrapper transition-transform" style="width: 100px; height: 100px; display: block; scale: var(--scale, 1);">
             <div class="absolute inset-0 overflow-clip bg-white" style="border-radius:calc(0.25rem/var(--scale,1)); display: block; width: 100%; height: 100%;">
-              <button type="button" class="absolute inset-0 cursor-pointer appearance-none" style="display: block; width: 100%; height: 100%; border: none; padding: 0; margin: 0; background: none;" aria-label="Open details for {{ product.title | escape }}" onclick="window.location.href='{{ product.url }}'">
+              <button type="button" class="absolute inset-0 cursor-pointer appearance-none" style="display: block; width: 100%; height: 100%; border: none; padding: 0; margin: 0; background: none;" aria-label="Open details for {{ product.title | escape }}">
                 <picture class="pointer-events-none absolute inset-0 [&>img]:[border-radius:calc(0.25rem/var(--scale,1))]" style="display: block; width: 100%; height: 100%;">
                   {% if product.featured_image %}
                     <img class="block absolute inset-0 h-full w-full object-cover" style="display: block; width: 100%; height: 100%; object-fit: cover;" alt="{{ product.title | escape }}" src="{{ product.featured_image | image_url: width: 640 }}" decoding="sync" fetchpriority="high" width="322" height="322"/>
@@ -36,6 +36,133 @@
     </ul>
   </div>
 </div>
+
+<style>
+  /* Base visibility control for details modals */
+  .product-detail-modal {
+    display: none;
+    pointer-events: none;
+  }
+  .product-detail-modal.flex {
+    display: flex;
+    pointer-events: auto;
+  }
+  
+  /* Prevent scrollbars on plus-infos-overlay */
+  .plus-infos-overlay {
+    scrollbar-width: none;
+  }
+  .plus-infos-overlay::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Custom add-to-cart button styling fallback in case of utility conflicts */
+  .add-to-cart-btn {
+    border: none;
+    cursor: pointer;
+  }
+  .add-to-cart-btn:disabled {
+    background-color: #888888 !important;
+    cursor: not-allowed;
+  }
+</style>
+
+<!-- Premium Product Details Modal Cards -->
+{% for product in target_collection.products %}
+<div id="modal-{{ product.handle }}" class="product-detail-modal fixed inset-0 isolate z-10 flex justify-center pointer-events-none hidden" data-handle="{{ product.handle }}">
+  <!-- Backdrop -->
+  <div class="modal-bg-color -z-1 absolute inset-0 cursor-default appearance-none bg-white opacity-0"></div>
+  
+  <!-- Content Wrapper -->
+  <div class="modal-content translate-y-full md:span-w-6 h-full w-full md:py-10">
+    <div class="relative h-full w-full p-20 pb-105 md:rounded-lg overflow-clip bg-grey text-white">
+      
+      <!-- Inside card: product details layout -->
+      <div class="flex h-full w-full flex-col justify-center">
+        
+        <!-- Card Header -->
+        <div class="absolute top-20 left-20 z-2 inline-flex min-h-47 w-[76%] items-center md:w-[80%]">
+          {% assign product_type_lower = product.type | downcase %}
+          {% if product_type_lower == 'album' %}
+            <div class="mr-16 h-73 w-73 shrink-0 overflow-clip rounded-sm">
+              <img src="{{ product.featured_image | image_url: width: 150 }}" alt="" class="h-full w-full object-cover">
+            </div>
+          {% endif %}
+          <div class="flex flex-wrap items-center gap-x-24 gap-y-4 uppercase">
+            <h2 class="pt-1 font-bold text-12 text-grey-60">{{ product.title }}</h2>
+            <span class="flex items-center rounded bg-grey-20 px-8 font-medium text-10 text-black">
+              <span class="pt-1">{{ product.type | default: 'Merch' }}</span>
+            </span>
+          </div>
+        </div>
+        
+        <!-- Gallery/Image Container -->
+        <div class="gallery-wrapper relative z-0 mt-58 grid grow-1 items-center overflow-clip">
+          <div class="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-white rounded-xs border border-black/5">
+            {% if product.featured_image %}
+              <img src="{{ product.featured_image | image_url: width: 640 }}" alt="{{ product.title | escape }}" class="max-h-full max-w-full object-contain pointer-events-none scale-[1.03]">
+            {% else %}
+              <div class="flex h-full items-center justify-center bg-gray-200 text-gray-500 text-xs">{{ product.title }}</div>
+            {% endif %}
+            
+            <!-- Plus d'infos Overlay -->
+            <div class="plus-infos-overlay pointer-events-auto invisible absolute top-0 left-0 z-2 h-full w-full flex-col px-12 py-8 translate-y-24 transition-transform duration-500 ease-expo-out overflow-clip rounded-xs bg-blur-bg-light backdrop-blur-[15px]">
+              <div class="my-30 grid h-full items-center overflow-y-auto px-20 text-black">
+                <div class="grid py-24 text-12 text-grey-60">
+                  {{ product.description }}
+                </div>
+              </div>
+            </div>
+            
+            <!-- Plus d'infos toggle button wrapper -->
+            <div class="absolute top-0 left-0 w-full p-10">
+              <button type="button" class="plus-infos-btn group overflow-clip rounded-xs">
+                <div class="inline-flex h-40 w-full items-center justify-between gap-10 px-12 bg-blur-bg-light backdrop-blur-[15px]">
+                  <div class="pt-1 font-bold text-12 text-grey-60/60 uppercase group-hover:text-grey-60">Plus d'infos</div>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#D0D0D0" viewBox="0 0 24 24" role="presentation" class="w-24 stroke-grey-60/60 group-hover:stroke-grey-60"><path stroke-width="1.5" d="M17.331 12.084H6.668M11.916 17.331V6.669"></path></svg>
+                </div>
+              </button>
+            </div>
+            
+          </div>
+        </div>
+        
+        <!-- Footer / Form -->
+        <div class="mt-auto">
+          <form method="post" action="/cart/add" class="add-to-cart-form mt-8 w-full" data-shopify-mini-cart-form="true">
+            <input type="hidden" name="id" value="{{ product.first_available_variant.id }}">
+            <button type="submit" class="add-to-cart-btn w-full bg-black hover:bg-grey-60 text-white font-bold py-14 px-20 rounded-md text-12 uppercase tracking-wide transition-colors flex justify-center items-center gap-8" {% unless product.available %}disabled{% endunless %}>
+              {% if product.available %}
+                Ajouter au panier - {{ product.price | money_without_trailing_zeros }}
+              {% else %}
+                En rupture de stock
+              {% endif %}
+            </button>
+          </form>
+          
+          <!-- Mini iPod Controller -->
+          <div class="mini-ipod-nav-wrapper mt-10">
+            <div class="mini-ipod-nav flex justify-center items-center">
+              <div class="bg-[#212121] rounded-full h-40 px-24 flex items-center justify-center gap-32 border border-[#333]">
+                <button type="button" class="mini-ipod-left cursor-pointer border-none bg-none p-4 hover:scale-110 transition-transform" aria-label="Previous">
+                  <svg class="w-18 fill-[#858585] hover:fill-white transition-colors rotate-180" viewBox="0 0 25 25"><path d="m21.428 12.281-7.313 4.14v-8.28zM13.25 12.281l-7.312 4.14v-8.28z"></path></svg>
+                </button>
+                <button type="button" class="mini-ipod-close cursor-pointer border-none bg-none p-4 hover:scale-110 transition-transform" aria-label="Close">
+                  <svg class="w-20 fill-[#858585] hover:fill-white transition-colors rotate-90" viewBox="0 0 25 25"><path d="m8.172 18.488-1.685-1.685 4.331-4.33-4.33-4.301 1.684-1.684 4.33 4.33 4.301-4.33 1.685 1.684-4.331 4.3 4.33 4.331-1.684 1.685-4.3-4.331z"></path></svg>
+                </button>
+                <button type="button" class="mini-ipod-right cursor-pointer border-none bg-none p-4 hover:scale-110 transition-transform" aria-label="Next">
+                  <svg class="w-18 fill-[#858585] hover:fill-white transition-colors" viewBox="0 0 25 25"><path d="m21.428 12.281-7.313 4.14v-8.28zM13.25 12.281l-7.312 4.14v-8.28z"></path></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
 
 <script src="{{ 'coverflow.js' | asset_url }}" defer></script>
 

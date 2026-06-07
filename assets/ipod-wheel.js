@@ -243,4 +243,21 @@ document.addEventListener('DOMContentLoaded', () => {
       maxIndex = slideCount - 1;
     }
   }
+
+  // Minimizing/sliding the iPod wheel down on hashchange
+  const ipodContainer = document.getElementById('ipod-nav-container');
+  const updateIpodState = () => {
+    const hasHash = window.location.hash && window.location.hash.length > 1;
+    if (ipodContainer) {
+      gsap.to(ipodContainer, {
+        y: hasHash ? '150%' : '0%',
+        duration: 0.8,
+        ease: 'expo.inOut',
+        overwrite: 'auto'
+      });
+    }
+  };
+
+  window.addEventListener('hashchange', updateIpodState);
+  updateIpodState();
 });
