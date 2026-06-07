@@ -11,6 +11,30 @@
     <link rel="preload" href="{{ 'Scto_Grotesk_A_Medium-s.p.9e43f3eb.woff2' | asset_url }}" as="font" crossorigin="" type="font/woff2"/>
     <link rel="preload" href="{{ 'Scto_Grotesk_A_Regular-s.p.446dd950.woff2' | asset_url }}" as="font" crossorigin="" type="font/woff2"/>
 
+    <!-- Animation & Smooth Scroll Dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.33/dist/lenis.min.js" defer></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const lenis = new Lenis({
+          duration: 1.2,
+          easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+          direction: 'vertical',
+          gestureDirection: 'vertical',
+          smooth: true,
+          mouseMultiplier: 1,
+          smoothTouch: false,
+          touchMultiplier: 2,
+          infinite: false,
+        });
+        function raf(time) {
+          lenis.raf(time);
+          requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+      });
+    </script>
+
     {{ 'damso.css' | asset_url | stylesheet_tag }}
   </head>
   <body class="grotesk_2193dbb5-module__MyDpIq__className grotesk_2193dbb5-module__MyDpIq__variable font-sans">

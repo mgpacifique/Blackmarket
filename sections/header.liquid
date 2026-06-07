@@ -15,6 +15,53 @@
   </div>
 </header>
 
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const header = document.querySelector('header');
+    if (!header) return;
+
+    let isMinimized = false;
+
+    const updateHeaderState = () => {
+      const hasHash = window.location.hash && window.location.hash.length > 1;
+      const isCartOpen = document.body.classList.contains('cart-drawer-open');
+      const shouldMinimize = hasHash || isCartOpen;
+
+      if (shouldMinimize !== isMinimized) {
+        isMinimized = shouldMinimize;
+        gsap.to(header, {
+          y: isMinimized ? '-100%' : '0%',
+          duration: 0.8,
+          ease: 'expo.inOut',
+          overwrite: 'auto'
+        });
+      }
+    };
+
+    // Listen for hash transitions
+    window.addEventListener('hashchange', updateHeaderState);
+    
+    // Listen for custom coverflow detail states
+    window.addEventListener('coverflowDragStart', () => {
+      // Re-enable header on coverflow interactions
+      gsap.to(header, { y: '0%', duration: 0.8, ease: 'expo.inOut', overwrite: 'auto' });
+    });
+
+    // Observe body class changes for cart open
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class') {
+          updateHeaderState();
+        }
+      });
+    });
+    observer.observe(document.body, { attributes: true });
+
+    // Initial state check
+    updateHeaderState();
+  });
+</script>
+
 {% schema %}
 {
   "name": "Header",

@@ -2,7 +2,11 @@
   <div class="h-full w-full pointer-events-auto" id="coverflow-container">
     <div class="coverflow-drag -translate-1/2 absolute left-1/2 cursor-grab select-none z-10" style="top:40%; height:440px; width:100%;"></div>
     <ul class="coverflow-wrapper absolute left-1/2 z-0" style="top:40%;">
-      {% for product in section.settings.collection.products %}
+      {% assign target_collection = section.settings.collection %}
+      {% if target_collection == blank or target_collection.products.size == 0 %}
+        {% assign target_collection = collections.all %}
+      {% endif %}
+      {% for product in target_collection.products %}
         <li id="product-{{ product.id }}" class="absolute top-0 left-0 select-none coverflow-item" data-index="{{ forloop.index0 }}" data-url="{{ product.url }}" data-title="{{ product.title | escape }}">
           <div class="-translate-1/2 absolute top-0 left-0 aspect-square coverflow-scale-wrapper transition-transform" style="width:300px; scale:var(--scale,1); transform: translate3d(var(--x,0), 0, var(--z,0)) rotateY(var(--rotY,0));">
             <div class="absolute inset-0 overflow-clip bg-white" style="border-radius:calc(0.25rem/var(--scale,1))">
