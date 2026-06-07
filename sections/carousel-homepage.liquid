@@ -8,7 +8,7 @@
       {% endif %}
       {% for product in target_collection.products %}
         <li id="product-{{ product.id }}" class="absolute top-0 left-0 select-none coverflow-item" data-index="{{ forloop.index0 }}" data-url="{{ product.url }}" data-title="{{ product.title | escape }}">
-          <div class="-translate-1/2 absolute top-0 left-0 aspect-square coverflow-scale-wrapper transition-transform" style="width:300px; scale:var(--scale,1); transform: translate3d(var(--x,0), 0, var(--z,0)) rotateY(var(--rotY,0));">
+          <div class="-translate-1/2 absolute top-0 left-0 aspect-square coverflow-scale-wrapper w-100 transition-transform" style="scale: var(--scale, 1);">
             <div class="absolute inset-0 overflow-clip bg-white" style="border-radius:calc(0.25rem/var(--scale,1))">
               <button type="button" class="absolute inset-0 cursor-pointer appearance-none" aria-label="Open details for {{ product.title | escape }}" onclick="window.location.href='{{ product.url }}'">
                 <picture class="pointer-events-none absolute inset-0 [&>img]:[border-radius:calc(0.25rem/var(--scale,1))]">
@@ -25,7 +25,7 @@
       {% else %}
         {% for i in (1..6) %}
           <li class="absolute top-0 left-0 select-none coverflow-item" data-index="{{ forloop.index0 }}">
-            <div class="-translate-1/2 absolute top-0 left-0 aspect-square coverflow-scale-wrapper transition-transform" style="width:300px; scale:var(--scale,1); transform: translate3d(var(--x,0), 0, var(--z,0)) rotateY(var(--rotY,0));">
+            <div class="-translate-1/2 absolute top-0 left-0 aspect-square coverflow-scale-wrapper w-100 transition-transform" style="scale: var(--scale, 1);">
               <div class="absolute inset-0 overflow-clip bg-[#C6C6C6] flex items-center justify-center text-white font-bold" style="border-radius:calc(0.25rem/var(--scale,1))">
                 Item {{ i }}
               </div>
