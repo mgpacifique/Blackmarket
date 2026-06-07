@@ -129,33 +129,43 @@
         
         <!-- Footer / Form -->
         <div class="mt-auto">
+          {% if product.variants.size > 1 %}
+            <div class="product-options-wrapper mt-10 mb-10 flex flex-col gap-8">
+              {% for option in product.options_with_values %}
+                {% if option.name != 'Title' %}
+                  <div class="flex h-32 items-center justify-between">
+                    <label for="Option-{{ product.id }}-{{ forloop.index0 }}" class="pt-1 pr-14 font-bold text-12 text-grey-60 uppercase">
+                      {{ option.name }}
+                    </label>
+                    <select id="Option-{{ product.id }}-{{ forloop.index0 }}" class="variant-select bg-transparent text-white border border-[#333] rounded px-10 py-4 font-bold text-12 uppercase cursor-pointer outline-none focus:border-white" data-index="{{ forloop.index0 }}">
+                      {% for value in option.values %}
+                        <option value="{{ value | escape }}" class="bg-black text-white" {% if option.selected_value == value %}selected{% endif %}>
+                          {{ value }}
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          {% endif %}
+          
+          <script type="application/json" class="product-variants-json">
+            {{ product.variants | json }}
+          </script>
+
           <form method="post" action="/cart/add" class="add-to-cart-form mt-8 w-full" data-shopify-mini-cart-form="true">
             <input type="hidden" name="id" value="{{ product.first_available_variant.id }}">
             <button type="submit" class="add-to-cart-btn w-full bg-black hover:bg-grey-60 text-white font-bold py-14 px-20 rounded-md text-12 uppercase tracking-wide transition-colors flex justify-center items-center gap-8" {% unless product.available %}disabled{% endunless %}>
-              {% if product.available %}
-                Ajouter au panier - {{ product.price | money_without_trailing_zeros }}
-              {% else %}
-                En rupture de stock
-              {% endif %}
+              <span class="add-to-cart-text">
+                {% if product.available %}
+                  Ajouter au panier - {{ product.price | money_without_trailing_zeros }}
+                {% else %}
+                  En rupture de stock
+                {% endif %}
+              </span>
             </button>
           </form>
-          
-          <!-- Mini iPod Controller -->
-          <div class="mini-ipod-nav-wrapper mt-10">
-            <div class="mini-ipod-nav flex justify-center items-center">
-              <div class="bg-[#212121] rounded-full h-40 px-24 flex items-center justify-center gap-32 border border-[#333]">
-                <button type="button" class="mini-ipod-left cursor-pointer border-none bg-none p-4 hover:scale-110 transition-transform" aria-label="Previous">
-                  <svg class="w-18 fill-[#858585] hover:fill-white transition-colors rotate-180" viewBox="0 0 25 25"><path d="m21.428 12.281-7.313 4.14v-8.28zM13.25 12.281l-7.312 4.14v-8.28z"></path></svg>
-                </button>
-                <button type="button" class="mini-ipod-close cursor-pointer border-none bg-none p-4 hover:scale-110 transition-transform" aria-label="Close">
-                  <svg class="w-20 fill-[#858585] hover:fill-white transition-colors rotate-90" viewBox="0 0 25 25"><path d="m8.172 18.488-1.685-1.685 4.331-4.33-4.33-4.301 1.684-1.684 4.33 4.33 4.301-4.33 1.685 1.684-4.331 4.3 4.33 4.331-1.684 1.685-4.3-4.331z"></path></svg>
-                </button>
-                <button type="button" class="mini-ipod-right cursor-pointer border-none bg-none p-4 hover:scale-110 transition-transform" aria-label="Next">
-                  <svg class="w-18 fill-[#858585] hover:fill-white transition-colors" viewBox="0 0 25 25"><path d="m21.428 12.281-7.313 4.14v-8.28zM13.25 12.281l-7.312 4.14v-8.28z"></path></svg>
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
         
       </div>

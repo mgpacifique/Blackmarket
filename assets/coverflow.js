@@ -244,6 +244,19 @@ document.addEventListener('DOMContentLoaded', () => {
       detail: { index: targetIndex }
     }));
 
+    // If modal is active, update the hash to the new centered item's handle
+    const hasHash = window.location.hash && window.location.hash.length > 1;
+    if (hasHash) {
+      const activeItem = items[targetNormalized];
+      if (activeItem) {
+        const url = activeItem.dataset.url;
+        const targetHandle = url ? url.split('/').pop() : '';
+        if (targetHandle && window.location.hash !== '#' + targetHandle) {
+          window.location.hash = '#' + targetHandle;
+        }
+      }
+    }
+
     gsap.to(p, {
       current: targetIndex,
       duration: 0.8,
@@ -282,6 +295,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
+  let lastActiveHandle = null;
+
   const updateModalState = () => {
     const rawHash = window.location.hash;
     const handle = rawHash && rawHash.length > 1 ? rawHash.slice(1) : null;
@@ -307,52 +322,105 @@ document.addEventListener('DOMContentLoaded', () => {
         }));
       }
 
-      modals.forEach(modal => {
-        if (modal.dataset.handle === handle) {
-          modal.classList.remove('hidden');
-          modal.classList.add('flex');
-          modal.style.pointerEvents = 'auto';
+      const activeModal = modals.find(modal => modal.dataset.handle === handle);
+      const lastModal = lastActiveHandle ? modals.find(modal => modal.dataset.handle === lastActiveHandle) : null;
 
-          const bg = modal.querySelector('.modal-bg-color');
-          const content = modal.querySelector('.modal-content');
-
-          if (bg && content) {
-            gsap.killTweensOf([bg, content]);
-            gsap.fromTo(bg, { opacity: 0 }, { opacity: 1, duration: 1.0, ease: 'expo.inOut' });
-            gsap.fromTo(content, { y: '100%' }, { y: '0%', duration: 1.0, ease: 'expo.inOut' });
+      if (activeModal) {
+        // Find indices to determine transition direction
+        let diff = 0;
+        if (lastModal && lastModal !== activeModal) {
+          const lastIdx = getProductIndexByHandle(lastActiveHandle);
+          const len = items.length;
+          if (activeIdx !== -1 && lastIdx !== -1) {
+            diff = activeIdx - lastIdx;
+            // Wrap index diff to find shortest path
+            if (diff > len / 2) diff -= len;
+            else if (diff < -len / 2) diff += len;
           }
-        } else {
-          modal.classList.add('hidden');
-          modal.classList.remove('flex');
-          modal.style.pointerEvents = 'none';
         }
-      });
-    } else {
-      modals.forEach(modal => {
-        if (!modal.classList.contains('hidden')) {
-          const bg = modal.querySelector('.modal-bg-color');
-          const content = modal.querySelector('.modal-content');
 
-          if (bg && content) {
-            gsap.killTweensOf([bg, content]);
-            gsap.to(bg, { opacity: 0, duration: 1.0, ease: 'expo.inOut' });
-            gsap.to(content, {
-              y: '100%',
-              duration: 1.0,
-              ease: 'expo.inOut',
-              onComplete: () => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-                modal.style.pointerEvents = 'none';
-              }
-            });
+        modals.forEach(modal => {
+          if (modal === activeModal || modal === lastModal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            modal.style.pointerEvents = modal === activeModal ? 'auto' : 'none';
           } else {
             modal.classList.add('hidden');
             modal.classList.remove('flex');
             modal.style.pointerEvents = 'none';
           }
+        });
+
+        const bg = activeModal.querySelector('.modal-bg-color');
+        const content = activeModal.querySelector('.modal-content');
+
+        if (lastModal && lastModal !== activeModal) {
+          // Simultaneous slider transition
+          const lastContent = lastModal.querySelector('.modal-content');
+          const lastBg = lastModal.querySelector('.modal-bg-color');
+          
+          if (content && lastContent) {
+            gsap.killTweensOf([content, lastContent, bg, lastBg]);
+            
+            // Set starting position for new modal content
+            gsap.set(content, { y: diff > 0 ? '100%' : '-100%' });
+            
+            let tl = gsap.timeline({
+              defaults: { duration: 1.0, ease: 'expo.inOut' },
+              onComplete: () => {
+                lastModal.classList.add('hidden');
+                lastModal.classList.remove('flex');
+              }
+            });
+            
+            tl.to(lastContent, { y: diff > 0 ? '-100%' : '100%' }, 0);
+            tl.to(content, { y: '0%' }, 0);
+            
+            // Keep backdrop static/active
+            if (bg) gsap.set(bg, { opacity: 1 });
+            if (lastBg) tl.to(lastBg, { opacity: 0 }, 0);
+          }
+        } else {
+          // Standard slide up from bottom when opening from home
+          if (bg && content) {
+            gsap.killTweensOf([bg, content]);
+            gsap.fromTo(bg, { opacity: 0 }, { opacity: 1, duration: 1.0, ease: 'expo.inOut' });
+            gsap.fromTo(content, { y: '100%' }, { y: '0%', duration: 1.0, ease: 'expo.inOut' });
+          }
         }
-      });
+      }
+      lastActiveHandle = handle;
+    } else {
+      // Close active modal
+      const lastModal = lastActiveHandle ? modals.find(modal => modal.dataset.handle === lastActiveHandle) : null;
+      if (lastModal) {
+        const bg = lastModal.querySelector('.modal-bg-color');
+        const content = lastModal.querySelector('.modal-content');
+        
+        if (bg && content) {
+          gsap.killTweensOf([bg, content]);
+          gsap.to(bg, { opacity: 0, duration: 1.0, ease: 'expo.inOut' });
+          gsap.to(content, {
+            y: '100%',
+            duration: 1.0,
+            ease: 'expo.inOut',
+            onComplete: () => {
+              modals.forEach(modal => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                modal.style.pointerEvents = 'none';
+              });
+            }
+          });
+        } else {
+          modals.forEach(modal => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            modal.style.pointerEvents = 'none';
+          });
+        }
+      }
+      lastActiveHandle = null;
     }
   };
 
@@ -363,48 +431,71 @@ document.addEventListener('DOMContentLoaded', () => {
   modals.forEach(modal => {
     const handle = modal.dataset.handle;
     
-    // Close button
-    const closeBtn = modal.querySelector('.mini-ipod-close');
-    if (closeBtn) {
-      closeBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        window.location.hash = '#';
-      });
-    }
+    // Variant Selection Logic
+    const variantSelects = Array.from(modal.querySelectorAll('.variant-select'));
+    const variantsJsonTag = modal.querySelector('.product-variants-json');
+    
+    if (variantSelects.length > 0 && variantsJsonTag) {
+      let variants = [];
+      try {
+        variants = JSON.parse(variantsJsonTag.textContent);
+      } catch (err) {
+        console.error('Failed to parse product variants JSON:', err);
+      }
 
-    // Previous button
-    const prevBtn = modal.querySelector('.mini-ipod-left');
-    if (prevBtn) {
-      prevBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const activeIdx = getProductIndexByHandle(handle);
-        if (activeIdx !== -1) {
-          const prevIdx = (activeIdx - 1 + items.length) % items.length;
-          const prevItem = items[prevIdx];
-          const prevUrl = prevItem.dataset.url;
-          const prevHandle = prevUrl ? prevUrl.split('/').pop() : '';
-          if (prevHandle) window.location.hash = '#' + prevHandle;
-        }
-      });
-    }
+      const updateVariantState = () => {
+        // Read active options in index order
+        const selectedOptions = variantSelects.sort((a, b) => {
+          return parseInt(a.dataset.index) - parseInt(b.dataset.index);
+        }).map(select => select.value);
 
-    // Next button
-    const nextBtn = modal.querySelector('.mini-ipod-right');
-    if (nextBtn) {
-      nextBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const activeIdx = getProductIndexByHandle(handle);
-        if (activeIdx !== -1) {
-          const nextIdx = (activeIdx + 1) % items.length;
-          const nextItem = items[nextIdx];
-          const nextUrl = nextItem.dataset.url;
-          const nextHandle = nextUrl ? nextUrl.split('/').pop() : '';
-          if (nextHandle) window.location.hash = '#' + nextHandle;
+        // Find matching variant
+        const matchingVariant = variants.find(variant => {
+          // Match all selected options
+          return selectedOptions.every((optVal, idx) => {
+            return variant.options[idx] === optVal;
+          });
+        });
+
+        if (matchingVariant) {
+          // 1. Update form variant ID input
+          const idInput = modal.querySelector('input[name="id"]');
+          if (idInput) idInput.value = matchingVariant.id;
+
+          // 2. Update Add-to-cart button price and disabled state
+          const submitBtn = modal.querySelector('button[type="submit"]');
+          const submitBtnText = modal.querySelector('.add-to-cart-text');
+          
+          if (submitBtn) {
+            if (matchingVariant.available) {
+              submitBtn.disabled = false;
+              if (submitBtnText) {
+                const formattedPrice = (matchingVariant.price / 100).toFixed(0);
+                submitBtnText.textContent = `Ajouter au panier - ${formattedPrice} €`;
+              }
+            } else {
+              submitBtn.disabled = true;
+              if (submitBtnText) submitBtnText.textContent = 'En rupture de stock';
+            }
+          }
+
+          // 3. Swap gallery featured image
+          if (matchingVariant.featured_image && matchingVariant.featured_image.src) {
+            const galleryImg = modal.querySelector('.gallery-wrapper img');
+            if (galleryImg) {
+              galleryImg.src = matchingVariant.featured_image.src;
+            }
+          }
         }
+      };
+
+      // Listen to option changes
+      variantSelects.forEach(select => {
+        select.addEventListener('change', updateVariantState);
       });
+      
+      // Initialize first check
+      updateVariantState();
     }
 
     // Plus d'infos drawer toggle

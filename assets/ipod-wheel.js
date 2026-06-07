@@ -248,15 +248,68 @@ document.addEventListener('DOMContentLoaded', () => {
   const ipodContainer = document.getElementById('ipod-nav-container');
   const updateIpodState = () => {
     const hasHash = window.location.hash && window.location.hash.length > 1;
-    if (ipodContainer) {
-      gsap.to(ipodContainer, {
-        y: hasHash ? '150%' : '0%',
-        duration: 0.8,
-        ease: 'expo.inOut',
-        overwrite: 'auto'
-      });
+    
+    let tl = gsap.timeline({defaults: {duration: 1.0, ease: 'expo.inOut', overwrite: 'auto'}});
+    
+    if (hasHash) {
+      // Minimized state (Modal Open)
+      tl.to('.ipod-menu-back', {width: '13.125rem', height: '4.1875rem'}, 0);
+      tl.to('.ipod-menu-wrapper', {y: '4rem'}, 0);
+      tl.to('.ipod-menu-btn', {autoAlpha: 0, y: '4rem'}, 0);
+      tl.to('.ipod-left-arrow', {x: '-200%'}, 0);
+      tl.to('.ipod-right-arrow', {x: '200%'}, 0);
+      
+      // Target elements inside the center button
+      gsap.set('.ipod-center-close', {visibility: 'visible'});
+      tl.to('.ipod-center-close', {autoAlpha: 1, rotation: 0, y: 0}, 0);
+      
+      // Translate the entire iPod nav container slightly down
+      tl.to('.ipod-nav', {y: '3.3rem'}, 0);
+      
+      // Disable circular touch tracking click select
+      const centerBtn = document.querySelector('.ipod-center-btn');
+      if (centerBtn) centerBtn.style.pointerEvents = 'none';
+      
+      // Enable close btn pointer events
+      const centerCloseBtn = document.querySelector('.ipod-center-close-btn');
+      if (centerCloseBtn) centerCloseBtn.style.pointerEvents = 'auto';
+      
+    } else {
+      // Default state (Modal Closed)
+      tl.to('.ipod-menu-back', {width: '11.25rem', height: '11.25rem'}, 0);
+      tl.to('.ipod-menu-wrapper', {y: '0'}, 0);
+      tl.to('.ipod-menu-btn', {autoAlpha: 1, y: '0'}, 0);
+      tl.to('.ipod-left-arrow', {x: '0'}, 0);
+      tl.to('.ipod-right-arrow', {x: '0'}, 0);
+      
+      tl.to('.ipod-center-close', {
+        autoAlpha: 0, 
+        rotation: 90, 
+        y: '-200%',
+        onComplete: () => {
+          gsap.set('.ipod-center-close', {visibility: 'hidden'});
+        }
+      }, 0);
+      
+      tl.to('.ipod-nav', {y: '0'}, 0);
+      
+      const centerBtn = document.querySelector('.ipod-center-btn');
+      if (centerBtn) centerBtn.style.pointerEvents = 'auto';
+      
+      const centerCloseBtn = document.querySelector('.ipod-center-close-btn');
+      if (centerCloseBtn) centerCloseBtn.style.pointerEvents = 'none';
     }
   };
+
+  const centerCloseBtn = document.querySelector('.ipod-center-close-btn');
+  if (centerCloseBtn) {
+    centerCloseBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      window.location.hash = '#';
+      playClickSound();
+    });
+  }
 
   window.addEventListener('hashchange', updateIpodState);
   updateIpodState();

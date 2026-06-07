@@ -1,196 +1,230 @@
 <style>
   /* Pixel-perfect Custom iPod Click Wheel Style matching reference image */
   .ipod-nav {
-    width: 180px !important;
-    height: 180px !important;
-    background-color: transparent !important; /* Transparent container */
-    border-radius: 50% !important;
-    position: relative !important;
-    overflow: visible !important;
+    width: 180px;
+    height: 180px;
+    background-color: transparent; /* Transparent container */
+    border-radius: 50%;
+    position: relative;
+    overflow: visible;
   }
   
   /* Solid dark grey background on .ipod-menu-back with z-index: 1 */
   .ipod-menu-back {
-    display: block !important; 
-    position: absolute !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    width: 100% !important;
-    height: 100% !important;
-    background-color: #1c1c1c !important; /* Solid dark grey outer wheel */
-    border-radius: 50% !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
-    z-index: 1 !important; /* Above sliding menu (z-0), below buttons */
+    display: block; 
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 180px;
+    height: 180px;
+    background-image: linear-gradient(to bottom, #252525, #181818);
+    border-radius: 9999px; /* Morphable pill */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    z-index: 1;
   }
 
   /* iPod arrows container */
   .ipod-arrows {
-    position: absolute !important;
-    inset: 0 !important;
-    z-index: 4 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    padding: 0 16px !important; /* Inset arrows from edges */
-    pointer-events: none !important;
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px; /* Inset arrows from edges */
+    pointer-events: none;
   }
 
   .ipod-arrows button {
-    background: none !important;
-    border: none !important;
-    padding: 8px !important;
-    cursor: pointer !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    pointer-events: auto !important;
-    transition: transform 0.1s !important;
+    background: none;
+    border: none;
+    padding: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    transition: transform 0.1s;
+    overflow: hidden;
   }
   
-  .ipod-arrows button svg {
-    width: 18px !important;
-    height: 18px !important;
-    fill: #858585 !important; /* Sleek light-grey arrows */
-    transition: fill 0.2s !important;
+  .ipod-left-arrow, .ipod-right-arrow {
+    position: relative;
+    width: 30px;
+    height: 30px;
   }
 
-  .ipod-arrows button:hover svg {
-    fill: #ffffff !important; 
+  .ipod-left-arrow svg, .ipod-right-arrow svg {
+    width: 30px !important;
+    height: 30px !important;
+    display: block !important;
+    position: absolute;
+    top: 0;
+    fill: #858585 !important;
+    transition: fill 0.2s;
+  }
+
+  .ipod-left-arrow svg:first-child {
+    left: 0;
+  }
+
+  .ipod-left-arrow svg:last-child {
+    left: 200%;
+  }
+
+  .ipod-right-arrow svg:first-child {
+    left: 0;
+  }
+
+  .ipod-right-arrow svg:last-child {
+    left: -200%;
+  }
+
+  .ipod-left-arrow svg path, .ipod-right-arrow svg path {
+    fill: inherit !important;
+  }
+
+  .ipod-arrows button:hover svg, .ipod-arrows button:hover svg path {
+    fill: #ffffff !important;
   }
 
   .ipod-arrows button:active {
-    transform: scale(0.9) !important;
+    transform: scale(0.9);
   }
 
   /* iPod top Menu button style */
   .ipod-menu-btn {
-    position: absolute !important;
-    top: 14px !important; /* Positioned near top edge */
-    left: 0 !important;
-    width: 100% !important;
-    display: flex !important;
-    justify-content: center !important;
-    z-index: 4 !important;
-    pointer-events: none !important;
+    position: absolute;
+    top: 14px; /* Positioned near top edge */
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    z-index: 4;
+    pointer-events: none;
   }
 
   .ipod-menu-btn button {
-    background: none !important;
-    border: none !important;
-    color: #e5e5e5 !important; /* Off-white uppercase text */
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
-    font-size: 13px !important;
-    font-weight: 700 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.05em !important;
-    cursor: pointer !important;
-    padding: 6px 12px !important;
-    margin: 0 !important;
-    pointer-events: auto !important;
-    transition: color 0.2s, transform 0.1s !important;
+    background: none;
+    border: none;
+    color: #e5e5e5; /* Off-white uppercase text */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    padding: 6px 12px;
+    margin: 0;
+    pointer-events: auto;
+    transition: color 0.2s, transform 0.1s;
+    overflow: hidden;
+    position: relative;
+    height: 24px;
+    display: inline-block;
   }
 
   .ipod-menu-btn button:hover {
-    color: #ffffff !important;
+    color: #ffffff;
   }
 
   .ipod-menu-btn button:active {
-    transform: scale(0.95) !important;
+    transform: scale(0.95);
   }
 
   /* Center Click Button */
   .ipod-menu-front {
-    position: absolute !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    width: 68px !important; /* Proportional center button size */
-    height: 68px !important;
-    background-color: #2b2b2b !important; /* Lighter solid grey button */
-    border-radius: 50% !important;
-    border: 1px solid #141414 !important; /* Thin border separator */
-    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.05), 0 2px 4px rgba(0, 0, 0, 0.3) !important;
-    z-index: 3 !important;
-    transition: background-color 0.2s, transform 0.1s !important;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 68px; /* Proportional center button size */
+    height: 68px;
+    background-color: #2b2b2b; /* Lighter solid grey button */
+    border-radius: 50%;
+    border: 1px solid #141414; /* Thin border separator */
+    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.05), 0 2px 4px rgba(0, 0, 0, 0.3);
+    z-index: 3;
+    transition: background-color 0.2s, transform 0.1s;
   }
 
   .ipod-center-btn {
-    position: absolute !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    background: none !important;
-    border: none !important;
-    border-radius: 50% !important;
-    cursor: pointer !important;
-    z-index: 10 !important;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: none;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10;
   }
 
   .ipod-menu-front:hover {
-    background-color: #333333 !important;
+    background-color: #333333;
   }
 
   .ipod-menu-front:active {
-    background-color: #222222 !important;
-    transform: translate(-50%, -50%) scale(0.96) !important;
+    background-color: #222222;
+    transform: translate(-50%, -50%) scale(0.96);
   }
   
   /* Draggable overlay absolute fill */
   .ipod-wheel-draggable {
-    position: absolute !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    z-index: 2 !important; 
-    border-radius: 50% !important;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2; 
+    border-radius: 50%;
   }
 
   /* Menu wrapper layout (placed exactly 52px above the wheel, centered) */
   .ipod-menu-wrapper {
-    position: absolute !important;
-    top: -72px !important; /* Fixed pixel positioning above the wheel */
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    z-index: 0 !important; /* Under the wheel background (z-1) when collapsed */
-    width: auto !important;
-    height: auto !important;
-    overflow: visible !important;
+    position: absolute;
+    top: -72px; /* Fixed pixel positioning above the wheel */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 0; /* Under the wheel background (z-1) when collapsed */
+    width: auto;
+    height: auto;
+    overflow: visible;
   }
 
   .ipod-menu-wrapper.is-active {
-    z-index: 3 !important; /* Above wheel background (z-1) but below buttons (z-4) */
+    z-index: 3; /* Above wheel background (z-1) but below buttons (z-4) */
   }
 
   .ipod-menu-wrapper nav {
-    position: relative !important;
-    top: 0 !important;
-    left: 0 !important;
-    transform: none !important;
-    display: block !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    width: auto !important;
-    height: auto !important;
+    position: relative;
+    top: 0;
+    left: 0;
+    transform: none;
+    display: block;
+    margin: 0;
+    padding: 0;
+    width: auto;
+    height: auto;
   }
 
   /* iPod sliding menu container (transitions width and position) */
   .ipod-menu {
-    width: 48px !important; /* Fully hidden behind the 180px wheel when collapsed */
-    height: 44px !important;
-    overflow: hidden !important;
-    border-radius: 8px !important;
-    background-color: #212121 !important; /* Solid dark grey navbar background */
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 20px !important;
-    padding: 0 16px !important;
-    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), width 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    width: 48px; /* Fully hidden behind the 180px wheel when collapsed */
+    height: 44px;
+    overflow: hidden;
+    border-radius: 8px;
+    background-color: #212121; /* Solid dark grey navbar background */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 0 16px;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   }
   
   .ipod-menu.is-active {
-    width: 330px !important; /* Smoothly expands to fit all links when active */
+    width: 330px; /* Smoothly expands to fit all links when active */
   }
 </style>
 
@@ -238,18 +272,38 @@
     
     <div class="ipod-arrows">
       <button class="ipod-left" type="button" aria-label="Previous">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" style="transform: rotate(180deg);"><path d="m21.428 12.281-7.313 4.14v-8.28zM13.25 12.281l-7.312 4.14v-8.28z"></path></svg>
+        <div class="ipod-left-arrow relative h-30 w-30">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="#D0D0D0" viewBox="0 0 25 25" style="transform: rotate(180deg);"><path d="m21.428 12.281-7.313 4.14v-8.28zM13.25 12.281l-7.312 4.14v-8.28z"></path></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="#D0D0D0" viewBox="0 0 25 25" class="absolute top-0 left-[200%]" style="transform: rotate(180deg);"><path d="m21.428 12.281-7.313 4.14v-8.28zM13.25 12.281l-7.312 4.14v-8.28z"></path></svg>
+        </div>
       </button>
       <button class="ipod-right-btn" type="button" aria-label="Next">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25"><path d="m21.428 12.281-7.313 4.14v-8.28zM13.25 12.281l-7.312 4.14v-8.28z"></path></svg>
+        <div class="ipod-right-arrow relative h-30 w-30">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="#D0D0D0" viewBox="0 0 25 25"><path d="m21.428 12.281-7.313 4.14v-8.28zM13.25 12.281l-7.312 4.14v-8.28z"></path></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="#D0D0D0" viewBox="0 0 25 25" class="absolute top-0 -left-[200%]"><path d="m21.428 12.281-7.313 4.14v-8.28zM13.25 12.281l-7.312 4.14v-8.28z"></path></svg>
+        </div>
       </button>
     </div>
     
     <div class="ipod-menu-btn">
-      <button type="button">menu</button>
+      <button type="button">
+        <div class="ipod-menu-label px-12">
+          <div class="relative"><span>menu</span></div>
+        </div>
+        <div class="ipod-menu-close group absolute inset-x-8 inset-y-0 mt-[3rem] flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="#C6C6C6" viewBox="0 0 25 25" class="w-26 rotate-90 group-hover:fill-white"><path d="m8.172 18.488-1.685-1.685 4.331-4.33-4.33-4.301 1.684-1.684 4.33 4.33 4.301-4.33 1.685 1.684-4.331 4.3 4.33 4.331-1.684 1.685-4.3-4.331z"></path></svg>
+        </div>
+      </button>
     </div>
     
     <div class="ipod-menu-front">
+      <div class="absolute inset-0 z-4 flex items-center justify-center overflow-clip rounded-full">
+        <button class="ipod-center-close-btn group relative flex items-center justify-center rounded-full p-16 outline-none" type="button" aria-label="Close modal">
+          <div class="relative h-25 w-25">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="#C6C6C6" viewBox="0 0 25 25" class="ipod-center-close -translate-y-[200%] invisible w-full fill-grey-20 group-hover:fill-white" style="position: absolute; top:0; left:0;"><path d="m8.172 18.488-1.685-1.685 4.331-4.33-4.33-4.301 1.684-1.684 4.33 4.33 4.301-4.33 1.685 1.684-4.331 4.3 4.33 4.331-1.684 1.685-4.3-4.331z"></path></svg>
+          </div>
+        </button>
+      </div>
       <button class="ipod-center-btn" type="button" aria-label="Select"></button>
     </div>
   </div>
