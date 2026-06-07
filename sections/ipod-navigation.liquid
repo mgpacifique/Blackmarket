@@ -1,12 +1,219 @@
+<style>
+  /* Pixel-perfect Custom iPod Click Wheel Style matching reference image */
+  .ipod-nav {
+    width: 180px !important;
+    height: 180px !important;
+    background-color: transparent !important; /* Transparent container */
+    border-radius: 50% !important;
+    position: relative !important;
+    overflow: visible !important;
+  }
+  
+  /* Solid dark grey background on .ipod-menu-back with z-index: 1 */
+  .ipod-menu-back {
+    display: block !important; 
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 100% !important;
+    height: 100% !important;
+    background-color: #1c1c1c !important; /* Solid dark grey outer wheel */
+    border-radius: 50% !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+    z-index: 1 !important; /* Above sliding menu (z-0), below buttons */
+  }
+
+  /* iPod arrows container */
+  .ipod-arrows {
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 4 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0 16px !important; /* Inset arrows from edges */
+    pointer-events: none !important;
+  }
+
+  .ipod-arrows button {
+    background: none !important;
+    border: none !important;
+    padding: 8px !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    pointer-events: auto !important;
+    transition: transform 0.1s !important;
+  }
+  
+  .ipod-arrows button svg {
+    width: 18px !important;
+    height: 18px !important;
+    fill: #858585 !important; /* Sleek light-grey arrows */
+    transition: fill 0.2s !important;
+  }
+
+  .ipod-arrows button:hover svg {
+    fill: #ffffff !important; 
+  }
+
+  .ipod-arrows button:active {
+    transform: scale(0.9) !important;
+  }
+
+  /* iPod top Menu button style */
+  .ipod-menu-btn {
+    position: absolute !important;
+    top: 14px !important; /* Positioned near top edge */
+    left: 0 !important;
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    z-index: 4 !important;
+    pointer-events: none !important;
+  }
+
+  .ipod-menu-btn button {
+    background: none !important;
+    border: none !important;
+    color: #e5e5e5 !important; /* Off-white uppercase text */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    cursor: pointer !important;
+    padding: 6px 12px !important;
+    margin: 0 !important;
+    pointer-events: auto !important;
+    transition: color 0.2s, transform 0.1s !important;
+  }
+
+  .ipod-menu-btn button:hover {
+    color: #ffffff !important;
+  }
+
+  .ipod-menu-btn button:active {
+    transform: scale(0.95) !important;
+  }
+
+  /* Center Click Button */
+  .ipod-menu-front {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 68px !important; /* Proportional center button size */
+    height: 68px !important;
+    background-color: #2b2b2b !important; /* Lighter solid grey button */
+    border-radius: 50% !important;
+    border: 1px solid #141414 !important; /* Thin border separator */
+    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.05), 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+    z-index: 3 !important;
+    transition: background-color 0.2s, transform 0.1s !important;
+  }
+
+  .ipod-center-btn {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: none !important;
+    border: none !important;
+    border-radius: 50% !important;
+    cursor: pointer !important;
+    z-index: 10 !important;
+  }
+
+  .ipod-menu-front:hover {
+    background-color: #333333 !important;
+  }
+
+  .ipod-menu-front:active {
+    background-color: #222222 !important;
+    transform: translate(-50%, -50%) scale(0.96) !important;
+  }
+  
+  /* Draggable overlay absolute fill */
+  .ipod-wheel-draggable {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 2 !important; 
+    border-radius: 50% !important;
+  }
+
+  /* Menu wrapper layout (placed exactly 52px above the wheel, centered) */
+  .ipod-menu-wrapper {
+    position: absolute !important;
+    top: -72px !important; /* Fixed pixel positioning above the wheel */
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 0 !important; /* Under the wheel background (z-1) when collapsed */
+    width: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .ipod-menu-wrapper.is-active {
+    z-index: 3 !important; /* Above wheel background (z-1) but below buttons (z-4) */
+  }
+
+  .ipod-menu-wrapper nav {
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+    transform: none !important;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: auto !important;
+    height: auto !important;
+  }
+
+  /* iPod sliding menu container (transitions width and position) */
+  .ipod-menu {
+    width: 48px !important; /* Fully hidden behind the 180px wheel when collapsed */
+    height: 44px !important;
+    overflow: hidden !important;
+    border-radius: 8px !important;
+    background-color: #212121 !important; /* Solid dark grey navbar background */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 20px !important;
+    padding: 0 16px !important;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), width 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+  
+  .ipod-menu.is-active {
+    width: 330px !important; /* Smoothly expands to fit all links when active */
+  }
+</style>
+
 <div class="pointer-events-none fixed bottom-0 left-0 z-100 flex w-full justify-center">
   <div class="ipod-nav relative mb-24 aspect-square w-180 select-none rounded-full pointer-events-auto">
-    <div class="ipod-menu-wrapper -top-52 absolute left-1/2 z-0 -translate-x-1/2">
-      <nav class="absolute top-0 left-1/2 -translate-x-1/2 mb-8">
-        <div class="ipod-menu flex h-44 w-[3rem] translate-y-[4.4rem] items-center justify-center gap-20 overflow-clip rounded-lg px-16 bg-grey-60 transition-transform duration-500" style="width: auto;">
+    <div class="ipod-menu-wrapper">
+      <nav>
+        <div class="ipod-menu" style="transform: translateY(80px);">
           
-          {% for block in section.blocks %}
-            <a aria-label="{{ block.settings.title }}" class="group relative flex items-center appearance-none cursor-pointer disabled:pointer-events-none pointer-events-auto focus-visible:outline-2 outline-black outline-offset-4 rounded-sm px-10 py-7 font-bold text-10 uppercase leading-none transition-colors delay-100 duration-300 bg-transparent text-white hover:bg-grey-50" href="{{ block.settings.url }}">{{ block.settings.title }}</a>
-          {% endfor %}
+          {% if section.blocks.size > 0 %}
+            {% for block in section.blocks %}
+              {% assign is_active = false %}
+              {% if block.settings.url == request.path or request.path == '/' and block.settings.url == '/collections/all' %}
+                {% assign is_active = true %}
+              {% endif %}
+              <a aria-label="{{ block.settings.title }}" class="group relative flex items-center appearance-none cursor-pointer disabled:pointer-events-none pointer-events-auto focus-visible:outline-2 outline-black outline-offset-4 rounded-sm px-10 py-7 font-bold text-10 uppercase leading-none transition-colors delay-100 duration-300 {% if is_active %}bg-white text-black{% else %}bg-transparent text-white hover:bg-grey-50{% endif %}" href="{{ block.settings.url }}">{{ block.settings.title }}</a>
+            {% endfor %}
+          {% else %}
+            <!-- Default Static Fallback Links (aligned with damso.com) -->
+            <a aria-label="Shop" class="group relative flex items-center appearance-none cursor-pointer disabled:pointer-events-none pointer-events-auto focus-visible:outline-2 outline-black outline-offset-4 rounded-sm px-10 py-7 font-bold text-10 uppercase leading-none transition-colors delay-100 duration-300 {% if request.path == '/' or request.path == '/collections/all' %}bg-white text-black{% else %}bg-transparent text-white hover:bg-grey-50{% endif %}" href="/">Shop</a>
+            <a aria-label="World" class="group relative flex items-center appearance-none cursor-pointer disabled:pointer-events-none pointer-events-auto focus-visible:outline-2 outline-black outline-offset-4 rounded-sm px-10 py-7 font-bold text-10 uppercase leading-none transition-colors delay-100 duration-300 {% if request.path == '/world' or request.path == '/pages/world' %}bg-white text-black{% else %}bg-transparent text-white hover:bg-grey-50{% endif %}" href="/world">World</a>
+            <a aria-label="Tournée" class="group relative flex items-center appearance-none cursor-pointer disabled:pointer-events-none pointer-events-auto focus-visible:outline-2 outline-black outline-offset-4 rounded-sm px-10 py-7 font-bold text-10 uppercase leading-none transition-colors delay-100 duration-300 {% if request.path == '/tournee' or request.path == '/pages/tournee' %}bg-white text-black{% else %}bg-transparent text-white hover:bg-grey-50{% endif %}" href="/tournee">Tournée</a>
+          {% endif %}
 
           <button class="ipod-cart-toggle-btn group relative flex items-center appearance-none cursor-pointer overflow-clip disabled:pointer-events-none pointer-events-auto focus-visible:outline-2 outline-black outline-offset-4 py-6 pr-8">
             <div class="relative flex h-30 w-32 items-end">
@@ -20,36 +227,30 @@
       </nav>
     </div>
     
-    <div class="ipod-menu-back -translate-1/2 absolute inset-1/2 z-1 h-[11.25rem] w-[11.25rem] overflow-clip rounded-full bg-gradient-to-b transition-colors duration-500 from-ipod-wheel-top to-ipod-wheel-bottom"></div>
-    <div class="ipod-wheel-draggable -translate-1/2 absolute inset-1/2 z-2 h-full w-full touch-none overflow-clip rounded-full cursor-grab"></div>
+    <div class="ipod-menu-back"></div>
+    <div class="ipod-wheel-draggable"></div>
     
-    <div class="ipod-center absolute inset-1/2 z-1 transition-opacity" style="opacity: 0;">
-      <div class="ipod-cursor -translate-1/2 absolute top-0 left-0 mt-58 aspect-square w-50 rounded-full">
-        <img alt="finger cursor" loading="lazy" width="55" height="55" decoding="async" class="opacity-50" src="{{ 'doigt.png' | asset_url }}"/>
+    <div class="ipod-center absolute inset-1/2 z-1 transition-opacity" style="opacity: 0; pointer-events: none;">
+      <div class="ipod-cursor -translate-1/2 absolute top-0 left-0 mt-58 aspect-square w-50 rounded-full" style="pointer-events: none;">
+        <img alt="finger cursor" loading="lazy" width="55" height="55" decoding="async" class="opacity-50" src="{{ 'doigt.png' | asset_url }}" style="pointer-events: none;"/>
       </div>
     </div>
     
-    <div class="ipod-arrows pointer-events-none absolute inset-0 z-4 flex items-center justify-between transition-opacity duration-800 ease-expo-out">
-      <button class="group flex items-center justify-center appearance-none cursor-pointer disabled:pointer-events-none pointer-events-auto focus-visible:outline-2 outline-black outline-offset-4 ipod-left p-6 outline-none font-bold text-11 uppercase leading-none text-grey-20 hover:text-white transition-colors duration-200">
-        ◄◄
+    <div class="ipod-arrows">
+      <button class="ipod-left" type="button" aria-label="Previous">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" style="transform: rotate(180deg);"><path d="m21.428 12.281-7.313 4.14v-8.28zM13.25 12.281l-7.312 4.14v-8.28z"></path></svg>
       </button>
-      <button class="group flex items-center justify-center appearance-none cursor-pointer disabled:pointer-events-none pointer-events-auto focus-visible:outline-2 outline-black outline-offset-4 ipod-right-btn p-6 outline-none font-bold text-11 uppercase leading-none text-grey-20 hover:text-white transition-colors duration-200">
-        ▶▶
-      </button>
-    </div>
-    
-    <div class="ipod-menu-btn pointer-events-none absolute inset-0 z-2 flex items-start justify-center">
-      <button class="group flex items-center appearance-none cursor-pointer disabled:pointer-events-none pointer-events-auto focus-visible:outline-2 outline-black outline-offset-4 relative mt-6 px-8 py-10 font-bold text-11 uppercase leading-none outline-none transition-colors duration-200 text-white hover:text-grey-20 pointer-events-auto">
-        <div class="ipod-menu-label px-12">
-          <div class="relative"><span>menu</span></div>
-        </div>
+      <button class="ipod-right-btn" type="button" aria-label="Next">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25"><path d="m21.428 12.281-7.313 4.14v-8.28zM13.25 12.281l-7.312 4.14v-8.28z"></path></svg>
       </button>
     </div>
     
-    <div class="ipod-menu-front -translate-1/2 absolute inset-1/2 z-3 h-[4.375rem] w-[4.375rem] overflow-clip rounded-full border transition-colors duration-500 border-black bg-ipod-dark-grey">
-      <div class="absolute inset-0 z-4 flex items-center justify-center overflow-clip rounded-full">
-      </div>
-      <button class="ipod-center-btn group items-center appearance-none cursor-pointer disabled:pointer-events-none pointer-events-auto focus-visible:outline-2 outline-black outline-offset-4 inline-block ipod-center-over absolute inset-0 z-10 overflow-clip rounded-full outline-none transition-colors duration-500 ease-circ-out hover:bg-grey-20/10 hover:duration-75"></button>
+    <div class="ipod-menu-btn">
+      <button type="button">menu</button>
+    </div>
+    
+    <div class="ipod-menu-front">
+      <button class="ipod-center-btn" type="button" aria-label="Select"></button>
     </div>
   </div>
 </div>

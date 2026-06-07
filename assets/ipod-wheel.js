@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const wheel = document.querySelector('.ipod-wheel-draggable');
   const menuBtn = document.querySelector('.ipod-menu-btn button');
   const menuWrapper = document.querySelector('.ipod-menu');
+  const menuWrapperParent = document.querySelector('.ipod-menu-wrapper');
   const centerBtn = document.querySelector('.ipod-center-btn') || document.querySelector('.ipod-center-over');
   const leftBtn = document.querySelector('.ipod-left');
   const rightBtn = document.querySelector('.ipod-right-btn');
@@ -53,8 +54,14 @@ document.addEventListener('DOMContentLoaded', () => {
       menuOpen = !menuOpen;
       if (menuOpen) {
         menuWrapper.style.transform = 'translateY(0)';
+        menuWrapper.classList.add('is-active');
+        if (menuWrapperParent) menuWrapperParent.classList.add('is-active');
+        menuBtn.textContent = '✕';
       } else {
-        menuWrapper.style.transform = 'translateY(4.4rem)';
+        menuWrapper.style.transform = 'translateY(80px)';
+        menuWrapper.classList.remove('is-active');
+        if (menuWrapperParent) menuWrapperParent.classList.remove('is-active');
+        menuBtn.textContent = 'menu';
       }
       playClickSound();
     });
@@ -158,15 +165,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const indexShift = Math.round(accumulatedDelta / 36);
       let targetIndex = initialIndex + indexShift;
 
-      // Clamp targetIndex between min/max bounds
-      if (targetIndex < minIndex) {
-        targetIndex = minIndex;
-        accumulatedDelta = (minIndex - initialIndex) * 36; // Clamp accumulated delta
-      } else if (targetIndex > maxIndex) {
-        targetIndex = maxIndex;
-        accumulatedDelta = (maxIndex - initialIndex) * 36;
-      }
-
       if (targetIndex !== currentIndex) {
         currentIndex = targetIndex;
         playClickSound();
@@ -202,13 +200,11 @@ document.addEventListener('DOMContentLoaded', () => {
     leftBtn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      if (currentIndex > minIndex) {
-        currentIndex--;
-        playClickSound();
-        window.dispatchEvent(new CustomEvent('ipodIndexChanged', {
-          detail: { index: currentIndex }
-        }));
-      }
+      currentIndex--;
+      playClickSound();
+      window.dispatchEvent(new CustomEvent('ipodIndexChanged', {
+        detail: { index: currentIndex }
+      }));
     });
   }
 
@@ -216,13 +212,11 @@ document.addEventListener('DOMContentLoaded', () => {
     rightBtn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      if (currentIndex < maxIndex) {
-        currentIndex++;
-        playClickSound();
-        window.dispatchEvent(new CustomEvent('ipodIndexChanged', {
-          detail: { index: currentIndex }
-        }));
-      }
+      currentIndex++;
+      playClickSound();
+      window.dispatchEvent(new CustomEvent('ipodIndexChanged', {
+        detail: { index: currentIndex }
+      }));
     });
   }
 
