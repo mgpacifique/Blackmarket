@@ -1,6 +1,567 @@
+{% doc %}
+  @prompt
+    Fix the product modal/card in the "Damso Coverflow" carousel section so that the product image is fully visible. The image area currently appears blank/empty in the middle of the modal. Ensure the image container has sufficient height (min 300px) and width (100%), is properly sized and responsive, and the product image displays correctly within the modal card using object-fit: cover or contain. The modal shows a product title at the top and a button at the bottom, but the image in the middle is not rendering visibly. Fix the image container styles so the image is visible, centered, and responsive across screen sizes.
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-damso-coverflow-{{ ai_gen_id }} {
+    display: block;
+    width: {{ block.settings.desktop_width_percent }}%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 60px 20px;
+    background-color: {{ block.settings.background_color }};
+    overflow: hidden;
+  }
+
+  .ai-damso-coverflow-container-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    perspective: 1200px;
+  }
+
+  .ai-damso-coverflow-carousel-{{ ai_gen_id }} {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 40px 0;
+    min-height: 500px;
+  }
+
+  .ai-damso-coverflow-card-{{ ai_gen_id }} {
+    position: relative;
+    width: 280px;
+    background: {{ block.settings.card_background }};
+    border-radius: {{ block.settings.card_border_radius }}px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    overflow: hidden;
+  }
+
+  .ai-damso-coverflow-card-{{ ai_gen_id }}:hover {
+    transform: translateY(-10px) scale(1.05);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  }
+
+  .ai-damso-coverflow-card-{{ ai_gen_id }}.center {
+    transform: scale(1.2) translateZ(0);
+    z-index: 10;
+  }
+
+  .ai-damso-coverflow-card-{{ ai_gen_id }}.left {
+    transform: translateX(-50px) rotateY(25deg) scale(0.9);
+    opacity: 0.7;
+    z-index: 5;
+  }
+
+  .ai-damso-coverflow-card-{{ ai_gen_id }}.right {
+    transform: translateX(50px) rotateY(-25deg) scale(0.9);
+    opacity: 0.7;
+    z-index: 5;
+  }
+
+  .ai-damso-coverflow-image-container-{{ ai_gen_id }} {
+    width: 100%;
+    min-height: 300px;
+    height: 350px;
+    overflow: hidden;
+    background-color: #f5f5f5;
+    position: relative;
+  }
+
+  .ai-damso-coverflow-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .ai-damso-coverflow-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f4f4f4;
+  }
+
+  .ai-damso-coverflow-placeholder-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    max-width: 200px;
+    max-height: 200px;
+    opacity: 0.3;
+  }
+
+  .ai-damso-coverflow-content-{{ ai_gen_id }} {
+    padding: 20px;
+  }
+
+  .ai-damso-coverflow-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.title_font_size }}px;
+    font-weight: 700;
+    color: {{ block.settings.title_color }};
+    margin: 0 0 10px;
+    line-height: 1.3;
+  }
+
+  .ai-damso-coverflow-price-{{ ai_gen_id }} {
+    font-size: {{ block.settings.price_font_size }}px;
+    font-weight: 600;
+    color: {{ block.settings.price_color }};
+    margin: 0 0 15px;
+  }
+
+  .ai-damso-coverflow-button-{{ ai_gen_id }} {
+    display: inline-block;
+    width: 100%;
+    padding: 12px 24px;
+    background-color: {{ block.settings.button_color }};
+    color: {{ block.settings.button_text_color }};
+    text-align: center;
+    text-decoration: none;
+    border-radius: {{ block.settings.button_border_radius }}px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+  }
+
+  .ai-damso-coverflow-button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.button_hover_color }};
+    transform: translateY(-2px);
+  }
+
+  .ai-damso-coverflow-nav-{{ ai_gen_id }} {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 30px;
+  }
+
+  .ai-damso-coverflow-nav-button-{{ ai_gen_id }} {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: {{ block.settings.nav_button_color }};
+    color: {{ block.settings.nav_button_icon_color }};
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .ai-damso-coverflow-nav-button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.nav_button_hover_color }};
+    transform: scale(1.1);
+  }
+
+  .ai-damso-coverflow-nav-button-{{ ai_gen_id }} svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .ai-damso-coverflow-empty-state-{{ ai_gen_id }} {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+  }
+
+  .ai-damso-coverflow-empty-state-{{ ai_gen_id }} p {
+    font-size: 18px;
+    margin: 10px 0;
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-damso-coverflow-carousel-{{ ai_gen_id }} {
+      gap: 10px;
+      min-height: 400px;
+    }
+
+    .ai-damso-coverflow-card-{{ ai_gen_id }} {
+      width: 220px;
+    }
+
+    .ai-damso-coverflow-image-container-{{ ai_gen_id }} {
+      min-height: 250px;
+      height: 280px;
+    }
+
+    .ai-damso-coverflow-card-{{ ai_gen_id }}.center {
+      transform: scale(1.1) translateZ(0);
+    }
+
+    .ai-damso-coverflow-card-{{ ai_gen_id }}.left,
+    .ai-damso-coverflow-card-{{ ai_gen_id }}.right {
+      transform: scale(0.85);
+      opacity: 0.6;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .ai-damso-coverflow-card-{{ ai_gen_id }} {
+      width: 180px;
+    }
+
+    .ai-damso-coverflow-image-container-{{ ai_gen_id }} {
+      min-height: 200px;
+      height: 220px;
+    }
+
+    .ai-damso-coverflow-content-{{ ai_gen_id }} {
+      padding: 15px;
+    }
+
+    .ai-damso-coverflow-title-{{ ai_gen_id }} {
+      font-size: 14px;
+    }
+
+    .ai-damso-coverflow-price-{{ ai_gen_id }} {
+      font-size: 16px;
+    }
+  }
+{% endstyle %}
+
+<damso-coverflow-{{ ai_gen_id }} class="ai-damso-coverflow-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  {% assign has_products = false %}
+  {% for i in (1..5) %}
+    {% assign product_key = 'product_' | append: i %}
+    {% if block.settings[product_key] != blank %}
+      {% assign has_products = true %}
+      {% break %}
+    {% endif %}
+  {% endfor %}
+
+  {% if has_products %}
+    <div class="ai-damso-coverflow-container-{{ ai_gen_id }}">
+      <div class="ai-damso-coverflow-carousel-{{ ai_gen_id }}" data-carousel>
+        {% for i in (1..5) %}
+          {% assign product_key = 'product_' | append: i %}
+          {% assign product = block.settings[product_key] %}
+          
+          {% if product != blank %}
+            <div class="ai-damso-coverflow-card-{{ ai_gen_id }}" data-index="{{ forloop.index0 }}">
+              <div class="ai-damso-coverflow-image-container-{{ ai_gen_id }}">
+                {% if product.featured_image %}
+                  <img
+                    src="{{ product.featured_image | image_url: width: 600 }}"
+                    alt="{{ product.featured_image.alt | escape }}"
+                    class="ai-damso-coverflow-image-{{ ai_gen_id }}"
+                    loading="lazy"
+                    width="600"
+                    height="600"
+                  >
+                {% else %}
+                  <div class="ai-damso-coverflow-placeholder-{{ ai_gen_id }}">
+                    {{ 'product-1' | placeholder_svg_tag }}
+                  </div>
+                {% endif %}
+              </div>
+              <div class="ai-damso-coverflow-content-{{ ai_gen_id }}">
+                <h3 class="ai-damso-coverflow-title-{{ ai_gen_id }}">{{ product.title }}</h3>
+                <div class="ai-damso-coverflow-price-{{ ai_gen_id }}">{{ product.price | money }}</div>
+                <a href="{{ product.url }}" class="ai-damso-coverflow-button-{{ ai_gen_id }}">
+                  {{ block.settings.button_text }}
+                </a>
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      <div class="ai-damso-coverflow-nav-{{ ai_gen_id }}">
+        <button class="ai-damso-coverflow-nav-button-{{ ai_gen_id }}" data-prev aria-label="Previous product">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <button class="ai-damso-coverflow-nav-button-{{ ai_gen_id }}" data-next aria-label="Next product">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
+    </div>
+  {% else %}
+    <div class="ai-damso-coverflow-empty-state-{{ ai_gen_id }}">
+      <p>Next, add products to display in the carousel</p>
+    </div>
+  {% endif %}
+</damso-coverflow-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class DamsoCoverflow{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.currentIndex = 0;
+        this.cards = [];
+      }
+
+      connectedCallback() {
+        this.carousel = this.querySelector('[data-carousel]');
+        if (!this.carousel) return;
+
+        this.cards = Array.from(this.carousel.querySelectorAll('.ai-damso-coverflow-card-{{ ai_gen_id }}'));
+        this.prevButton = this.querySelector('[data-prev]');
+        this.nextButton = this.querySelector('[data-next]');
+
+        if (this.cards.length === 0) return;
+
+        this.setupEventListeners();
+        this.updateCarousel();
+      }
+
+      setupEventListeners() {
+        if (this.prevButton) {
+          this.prevButton.addEventListener('click', () => this.navigate(-1));
+        }
+
+        if (this.nextButton) {
+          this.nextButton.addEventListener('click', () => this.navigate(1));
+        }
+
+        this.cards.forEach((card, index) => {
+          card.addEventListener('click', () => {
+            if (index !== this.currentIndex) {
+              this.currentIndex = index;
+              this.updateCarousel();
+            }
+          });
+        });
+
+        let startX = 0;
+        let endX = 0;
+
+        this.carousel.addEventListener('touchstart', (e) => {
+          startX = e.touches[0].clientX;
+        });
+
+        this.carousel.addEventListener('touchend', (e) => {
+          endX = e.changedTouches[0].clientX;
+          const diff = startX - endX;
+
+          if (Math.abs(diff) > 50) {
+            if (diff > 0) {
+              this.navigate(1);
+            } else {
+              this.navigate(-1);
+            }
+          }
+        });
+      }
+
+      navigate(direction) {
+        this.currentIndex += direction;
+
+        if (this.currentIndex < 0) {
+          this.currentIndex = this.cards.length - 1;
+        } else if (this.currentIndex >= this.cards.length) {
+          this.currentIndex = 0;
+        }
+
+        this.updateCarousel();
+      }
+
+      updateCarousel() {
+        this.cards.forEach((card, index) => {
+          card.classList.remove('center', 'left', 'right');
+
+          if (index === this.currentIndex) {
+            card.classList.add('center');
+          } else if (index === this.currentIndex - 1 || (this.currentIndex === 0 && index === this.cards.length - 1)) {
+            card.classList.add('left');
+          } else if (index === this.currentIndex + 1 || (this.currentIndex === this.cards.length - 1 && index === 0)) {
+            card.classList.add('right');
+          }
+        });
+      }
+    }
+
+    customElements.define('damso-coverflow-{{ ai_gen_id }}', DamsoCoverflow{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Damso Coverflow",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Products"
+    },
+    {
+      "type": "product",
+      "id": "product_1",
+      "label": "Product 1"
+    },
+    {
+      "type": "product",
+      "id": "product_2",
+      "label": "Product 2"
+    },
+    {
+      "type": "product",
+      "id": "product_3",
+      "label": "Product 3"
+    },
+    {
+      "type": "product",
+      "id": "product_4",
+      "label": "Product 4"
+    },
+    {
+      "type": "product",
+      "id": "product_5",
+      "label": "Product 5"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "desktop_width_percent",
+      "label": "Desktop width",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#f9f9f9"
+    },
+    {
+      "type": "header",
+      "content": "Card style"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "card_border_radius",
+      "label": "Card border radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Text style"
+    },
+    {
+      "type": "range",
+      "id": "title_font_size",
+      "label": "Title font size",
+      "min": 12,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "price_font_size",
+      "label": "Price font size",
+      "min": 12,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "color",
+      "id": "price_color",
+      "label": "Price color",
+      "default": "#333333"
+    },
+    {
+      "type": "header",
+      "content": "Button"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button text",
+      "default": "View Product"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_color",
+      "label": "Button hover color",
+      "default": "#333333"
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "label": "Button border radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 6
+    },
+    {
+      "type": "header",
+      "content": "Navigation"
+    },
+    {
+      "type": "color",
+      "id": "nav_button_color",
+      "label": "Nav button color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "nav_button_icon_color",
+      "label": "Nav icon color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "nav_button_hover_color",
+      "label": "Nav button hover color",
+      "default": "#333333"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Damso Coverflow"
+    }
+  ]
+}
 {% endschema %}
