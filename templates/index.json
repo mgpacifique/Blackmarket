@@ -13,7 +13,7 @@
       "type": "carousel-homepage",
       "settings": {
         "collection": "feaured-drop",
-        "image_height": 320,
+        "image_height": 290,
         "image_width": 80,
         "image_fit": "contain"
       }
