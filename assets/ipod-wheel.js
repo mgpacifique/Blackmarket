@@ -243,15 +243,16 @@ document.addEventListener('DOMContentLoaded', () => {
       maxIndex = slideCount - 1;
     }
   }
-
-  // Minimizing/sliding the iPod wheel down on hashchange
+  // Minimizing/sliding the iPod wheel down on hashchange or cart drawer active
   const ipodContainer = document.getElementById('ipod-nav-container');
   const updateIpodState = () => {
     const hasHash = window.location.hash && window.location.hash.length > 1;
+    const isCartOpen = document.body.classList.contains('cart-drawer-open');
+    const shouldMinimize = hasHash || isCartOpen;
     
     let tl = gsap.timeline({defaults: {duration: 1.0, ease: 'expo.inOut', overwrite: 'auto'}});
     
-    if (hasHash) {
+    if (shouldMinimize) {
       // Minimized state (Modal Open)
       tl.to('.ipod-menu-back', {width: '13.125rem', height: '4.1875rem'}, 0);
       tl.to('.ipod-menu-wrapper', {y: '4rem'}, 0);
@@ -306,11 +307,23 @@ document.addEventListener('DOMContentLoaded', () => {
     centerCloseBtn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
+      document.body.classList.remove('cart-drawer-open');
       window.location.hash = '#';
       playClickSound();
     });
   }
 
   window.addEventListener('hashchange', updateIpodState);
+
+  // Observe body class changes to sync iPod layout when cart-drawer-open is toggled
+  const bodyObserver = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.attributeName === 'class') {
+        updateIpodState();
+      }
+    });
+  });
+  bodyObserver.observe(document.body, { attributes: true });
+
   updateIpodState();
 });

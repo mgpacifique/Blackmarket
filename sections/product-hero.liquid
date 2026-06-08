@@ -1,0 +1,131 @@
+{{ 'product-page.css' | asset_url | stylesheet_tag }}
+
+{% comment %}
+  Product Hero Section — damso.com PRD (Section 4 + 6)
+  Two-column layout: 60% gallery | 40% info (desktop)
+  Stacked layout on mobile
+{% endcomment %}
+
+{%- assign current_variant = product.selected_or_first_available_variant -%}
+
+<div class="product-hero" id="ProductHero">
+  <!-- LEFT: Media Gallery -->
+  <div class="product-hero__gallery">
+    {%- render 'product-media-gallery-damso' -%}
+  </div>
+
+  <!-- RIGHT: Product Info -->
+  <div class="product-info">
+    {%- if section.settings.show_vendor and product.vendor != blank -%}
+      <p class="product-info__vendor">{{ product.vendor }}</p>
+    {%- endif -%}
+
+    <h1 class="product-info__title">{{ product.title }}</h1>
+
+    <!-- Price Block (PRD Section 6.2) -->
+    <div class="product-price" data-price-wrapper>
+      {%- if current_variant.compare_at_price > current_variant.price -%}
+        <span class="product-price__sale">
+          {{ current_variant.price | money }}
+        </span>
+        <span class="product-price__compare">
+          {{ current_variant.compare_at_price | money }}
+        </span>
+        <span class="product-price__badge">SALE</span>
+      {%- else -%}
+        <span class="product-price__regular">
+          {{ current_variant.price | money }}
+        </span>
+      {%- endif -%}
+    </div>
+
+    <!-- Product Form (PRD Section 8.1) -->
+    {% form 'product', product, id: 'ProductForm', data-product-form: '', novalidate: 'novalidate' %}
+      {%- render 'product-variant-picker-damso', show_size_guide: section.settings.show_size_guide -%}
+
+      <!-- Quantity Selector -->
+      <div class="product-quantity">
+        <button type="button" class="qty-btn" data-qty-decrease aria-label="Diminuer">−</button>
+        <input type="number" name="quantity" id="Quantity" value="1" min="1" aria-label="Quantité">
+        <button type="button" class="qty-btn" data-qty-increase aria-label="Augmenter">+</button>
+      </div>
+
+      <!-- Add to Cart Button -->
+      <button
+        type="submit"
+        name="add"
+        data-atc-button
+        class="pp-atc-button"
+        {%- unless current_variant.available -%}disabled{%- endunless -%}
+      >
+        {%- if current_variant.available -%}
+          Ajouter au panier — {{ current_variant.price | money }}
+        {%- else -%}
+          Épuisé
+        {%- endif -%}
+      </button>
+    {% endform %}
+
+    <!-- Accordions (PRD Section 12) -->
+    <div class="product-accordions">
+      <details class="accordion" open>
+        <summary class="accordion__trigger">
+          Description
+          <span class="accordion__icon" aria-hidden="true">+</span>
+        </summary>
+        <div class="accordion__body">
+          {{ product.description }}
+        </div>
+      </details>
+
+      {%- if product.metafields.custom.details != blank -%}
+        <details class="accordion">
+          <summary class="accordion__trigger">
+            Détails
+            <span class="accordion__icon" aria-hidden="true">+</span>
+          </summary>
+          <div class="accordion__body">
+            {{ product.metafields.custom.details | metafield_tag }}
+          </div>
+        </details>
+      {%- endif -%}
+
+      <details class="accordion">
+        <summary class="accordion__trigger">
+          Livraison & retours
+          <span class="accordion__icon" aria-hidden="true">+</span>
+        </summary>
+        <div class="accordion__body">
+          {%- if pages['shipping-returns'] != blank -%}
+            {{ pages['shipping-returns'].content }}
+          {%- else -%}
+            <p>Livraison standard sous 5-7 jours ouvrés. Retours acceptés sous 14 jours.</p>
+          {%- endif -%}
+        </div>
+      </details>
+    </div>
+  </div>
+</div>
+
+{{ 'product-page.js' | asset_url | script_tag }}
+
+{% schema %}
+{
+  "name": "Product Hero",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show vendor",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_size_guide",
+      "label": "Show size guide link",
+      "default": true
+    }
+  ]
+}
+{% endschema %}

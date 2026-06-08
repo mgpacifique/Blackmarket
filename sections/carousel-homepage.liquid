@@ -61,69 +61,81 @@
     border: none;
     cursor: pointer;
   }
-  .add-to-cart-btn:disabled {
-    background-color: #888888 !important;
-    cursor: not-allowed;
+  /* Custom translate rule for GSAP compatibility with Tailwind v4 */
+  .modal-content {
+    transform: translateY(100%);
   }
 </style>
 
 <!-- Premium Product Details Modal Cards -->
 {% for product in target_collection.products %}
+{% assign product_type_lower = product.type | downcase %}
 <div id="modal-{{ product.handle }}" class="product-detail-modal fixed inset-0 isolate z-10 flex justify-center pointer-events-none hidden" data-handle="{{ product.handle }}">
   <!-- Backdrop -->
-  <div class="modal-bg-color -z-1 absolute inset-0 cursor-default appearance-none bg-white opacity-0"></div>
+  <div class="modal-bg-color -z-1 absolute inset-0 cursor-default appearance-none {% if product_type_lower == 'album' %}bg-black{% else %}bg-white{% endif %} opacity-0"></div>
   
   <!-- Content Wrapper -->
-  <div class="modal-content translate-y-full md:span-w-6 h-full w-full md:py-10">
-    <div class="relative h-full w-full p-20 pb-105 md:rounded-lg overflow-clip bg-grey text-white">
+  <div class="modal-content md:span-w-6 h-full w-full" style="padding-bottom:120px;">
+    <div class="relative h-full w-full md:rounded-lg overflow-clip {% if product_type_lower == 'album' %}bg-blur-bg text-white{% else %}bg-blur-bg-light text-black{% endif %} backdrop-blur-[15px] border border-black/5 shadow-2xl">
       
       <!-- Inside card: product details layout -->
-      <div class="flex h-full w-full flex-col justify-center">
+      <div class="flex h-full w-full flex-col justify-center p-20 pb-105">
         
         <!-- Card Header -->
         <div class="absolute top-20 left-20 z-2 inline-flex min-h-47 w-[76%] items-center md:w-[80%]">
-          {% assign product_type_lower = product.type | downcase %}
           {% if product_type_lower == 'album' %}
             <div class="mr-16 h-73 w-73 shrink-0 overflow-clip rounded-sm">
               <img src="{{ product.featured_image | image_url: width: 150 }}" alt="" class="h-full w-full object-cover">
             </div>
           {% endif %}
           <div class="flex flex-wrap items-center gap-x-24 gap-y-4 uppercase">
-            <h2 class="pt-1 font-bold text-12 text-grey-60">{{ product.title }}</h2>
-            <span class="flex items-center rounded bg-grey-20 px-8 font-medium text-10 text-black">
+            <h2 class="pt-1 font-bold text-12 {% if product_type_lower == 'album' %}text-white{% else %}text-grey-60{% endif %}">{{ product.title }}</h2>
+            <span class="flex items-center rounded px-8 font-medium text-10 {% if product_type_lower == 'album' %}bg-white/20 text-white{% else %}bg-grey-20 text-black{% endif %}">
               <span class="pt-1">{{ product.type | default: 'Merch' }}</span>
             </span>
           </div>
         </div>
         
+        <!-- Close Button -->
+        <button type="button" class="product-detail-close-btn absolute top-20 right-20 z-2 grid aspect-square w-47 place-content-center rounded-lg {% if product_type_lower == 'album' %}bg-white/10 text-white hover:bg-white/20{% else %}bg-black/5 text-black hover:bg-black/10{% endif %} backdrop-blur-2xl transition-colors" aria-label="Close details">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-24 stroke-current"><path stroke-width="1.5" d="M18 6L6 18M6 6l12 12"></path></svg>
+        </button>
+        
         <!-- Gallery/Image Container -->
-        <div class="gallery-wrapper relative z-0 mt-58 grid grow-1 items-center overflow-clip">
-          <div class="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-white rounded-xs border border-black/5">
-            {% if product.featured_image %}
-              <img src="{{ product.featured_image | image_url: width: 640 }}" alt="{{ product.title | escape }}" class="max-h-full max-w-full object-contain pointer-events-none scale-[1.03]">
-            {% else %}
-              <div class="flex h-full items-center justify-center bg-gray-200 text-gray-500 text-xs">{{ product.title }}</div>
-            {% endif %}
-            
-            <!-- Plus d'infos Overlay -->
-            <div class="plus-infos-overlay pointer-events-auto invisible absolute top-0 left-0 z-2 h-full w-full flex-col px-12 py-8 translate-y-24 transition-transform duration-500 ease-expo-out overflow-clip rounded-xs bg-blur-bg-light backdrop-blur-[15px]">
-              <div class="my-30 grid h-full items-center overflow-y-auto px-20 text-black">
-                <div class="grid py-24 text-12 text-grey-60">
+        {%- assign img_height = section.settings.image_height | default: 400 -%}
+        {%- assign img_fit = section.settings.image_fit | default: 'contain' -%}
+        {%- assign img_width = section.settings.image_width | default: 90 -%}
+        <div class="gallery-wrapper" style="position:relative;flex:1 1 0%;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-top:58px;width:100%;">
+          {% if product.featured_image %}
+            <img
+              src="{{ product.featured_image | image_url: width: 800 }}"
+              alt="{{ product.title | escape }}"
+              loading="lazy"
+              width="800"
+              height="800"
+              style="display:block;width:{{ img_width }}%;height:{{ img_height }}px;object-fit:{{ img_fit }};border-radius:6px;"
+            >
+          {% else %}
+            <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;" class="text-gray-500 text-xs">{{ product.title }}</div>
+          {% endif %}
+          
+          <!-- Plus d'infos Overlay -->
+          <div class="pointer-events-none absolute top-0 left-0 z-2 h-full w-full overflow-clip p-10">
+            <div class="plus-infos-overlay pointer-events-auto invisible flex h-full w-full flex-col px-12 py-8 translate-y-24 transition-transform duration-500 ease-expo-out overflow-clip rounded-xs {% if product_type_lower == 'album' %}bg-blur-bg text-white{% else %}bg-blur-bg-light text-black{% endif %} backdrop-blur-[15px]">
+              <div class="my-30 grid h-full items-center overflow-y-auto px-20">
+                <div class="grid py-24 text-12 {% if product_type_lower == 'album' %}text-white/80{% else %}text-grey-60{% endif %}">
                   {{ product.description }}
                 </div>
               </div>
             </div>
-            
-            <!-- Plus d'infos toggle button wrapper -->
-            <div class="absolute top-0 left-0 w-full p-10">
+            <div class="pointer-events-auto absolute top-0 left-0 w-full p-10">
               <button type="button" class="plus-infos-btn group overflow-clip rounded-xs">
-                <div class="inline-flex h-40 w-full items-center justify-between gap-10 px-12 bg-blur-bg-light backdrop-blur-[15px]">
-                  <div class="pt-1 font-bold text-12 text-grey-60/60 uppercase group-hover:text-grey-60">Plus d'infos</div>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#D0D0D0" viewBox="0 0 24 24" role="presentation" class="w-24 stroke-grey-60/60 group-hover:stroke-grey-60"><path stroke-width="1.5" d="M17.331 12.084H6.668M11.916 17.331V6.669"></path></svg>
+                <div class="inline-flex h-40 items-center justify-between gap-10 px-12 {% if product_type_lower == 'album' %}bg-blur-bg text-white border-white/10{% else %}bg-blur-bg-light text-grey-60 border-black/5{% endif %} backdrop-blur-[15px] border rounded-xs">
+                  <span class="pt-1 font-bold text-12 uppercase opacity-60 group-hover:opacity-100">Plus d'infos</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" role="presentation" class="w-24 stroke-current opacity-60 group-hover:opacity-100"><path stroke-width="1.5" d="M17.331 12.084H6.668M11.916 17.331V6.669"></path></svg>
                 </div>
               </button>
             </div>
-            
           </div>
         </div>
         
@@ -134,12 +146,12 @@
               {% for option in product.options_with_values %}
                 {% if option.name != 'Title' %}
                   <div class="flex h-32 items-center justify-between">
-                    <label for="Option-{{ product.id }}-{{ forloop.index0 }}" class="pt-1 pr-14 font-bold text-12 text-grey-60 uppercase">
+                    <label for="Option-{{ product.id }}-{{ forloop.index0 }}" class="pt-1 pr-14 font-bold text-12 {% if product_type_lower == 'album' %}text-white/60{% else %}text-grey-60{% endif %} uppercase">
                       {{ option.name }}
                     </label>
-                    <select id="Option-{{ product.id }}-{{ forloop.index0 }}" class="variant-select bg-transparent text-white border border-[#333] rounded px-10 py-4 font-bold text-12 uppercase cursor-pointer outline-none focus:border-white" data-index="{{ forloop.index0 }}">
+                    <select id="Option-{{ product.id }}-{{ forloop.index0 }}" class="variant-select bg-transparent {% if product_type_lower == 'album' %}text-white border-white/20{% else %}text-grey-60 border-black/10{% endif %} rounded px-10 py-4 font-bold text-12 uppercase cursor-pointer outline-none focus:border-black" data-index="{{ forloop.index0 }}">
                       {% for value in option.values %}
-                        <option value="{{ value | escape }}" class="bg-black text-white" {% if option.selected_value == value %}selected{% endif %}>
+                        <option value="{{ value | escape }}" class="{% if product_type_lower == 'album' %}bg-black text-white{% else %}bg-white text-black{% endif %}" {% if option.selected_value == value %}selected{% endif %}>
                           {{ value }}
                         </option>
                       {% endfor %}
@@ -156,7 +168,7 @@
 
           <form method="post" action="/cart/add" class="add-to-cart-form mt-8 w-full" data-shopify-mini-cart-form="true">
             <input type="hidden" name="id" value="{{ product.first_available_variant.id }}">
-            <button type="submit" class="add-to-cart-btn w-full bg-black hover:bg-grey-60 text-white font-bold py-14 px-20 rounded-md text-12 uppercase tracking-wide transition-colors flex justify-center items-center gap-8" {% unless product.available %}disabled{% endunless %}>
+            <button type="submit" class="add-to-cart-btn w-full {% if product_type_lower == 'album' %}bg-white text-black hover:bg-grey-20{% else %}bg-black text-white hover:bg-grey-60{% endif %} font-bold py-14 px-20 rounded-md text-12 uppercase tracking-wide transition-colors flex justify-center items-center gap-8" {% unless product.available %}disabled{% endunless %}>
               <span class="add-to-cart-text">
                 {% if product.available %}
                   Ajouter au panier - {{ product.price | money_without_trailing_zeros }}
@@ -184,6 +196,42 @@
       "type": "collection",
       "id": "collection",
       "label": "Collection to display"
+    },
+    {
+      "type": "header",
+      "content": "Product Image Settings"
+    },
+    {
+      "type": "range",
+      "id": "image_height",
+      "label": "Image height (px)",
+      "min": 150,
+      "max": 700,
+      "step": 10,
+      "default": 400,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "image_width",
+      "label": "Image width (%)",
+      "min": 30,
+      "max": 100,
+      "step": 5,
+      "default": 90,
+      "unit": "%"
+    },
+    {
+      "type": "select",
+      "id": "image_fit",
+      "label": "Image fit mode",
+      "options": [
+        { "value": "contain", "label": "Contain (show full image)" },
+        { "value": "cover", "label": "Cover (fill & crop)" },
+        { "value": "fill", "label": "Fill (stretch)" },
+        { "value": "scale-down", "label": "Scale down (natural or smaller)" }
+      ],
+      "default": "contain"
     }
   ],
   "presets": [

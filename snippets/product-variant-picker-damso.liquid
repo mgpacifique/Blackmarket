@@ -1,0 +1,45 @@
+{% comment %}
+  Product Variant Picker — damso.com PRD (Section 7)
+  Dropdown style with proper availability states
+{% endcomment %}
+
+<div class="variant-picker" data-variant-picker>
+  {%- for option in product.options_with_values -%}
+    {%- unless option.name == 'Title' and option.values.size == 1 -%}
+      <div class="variant-picker__group" data-option-index="{{ forloop.index0 }}">
+        <div class="variant-picker__label">
+          <span>{{ option.name }}</span>
+          {%- if option.name == 'Size' or option.name == 'Taille' -%}
+            {%- if show_size_guide -%}
+              <button type="button" class="size-guide-trigger" data-open-size-guide>
+                Guide des tailles
+              </button>
+            {%- endif -%}
+          {%- endif -%}
+        </div>
+        <select
+          class="variant-picker__select"
+          data-option-position="{{ option.position }}"
+          data-option-index="{{ forloop.index0 }}"
+          aria-label="{{ option.name }}"
+        >
+          {%- for value in option.values -%}
+            <option
+              value="{{ value | escape }}"
+              {% if option.selected_value == value %}selected{% endif %}
+            >
+              {{ value }}
+            </option>
+          {%- endfor -%}
+        </select>
+      </div>
+    {%- endunless -%}
+  {%- endfor -%}
+
+  <input type="hidden" name="id" id="ProductVariantId" value="{{ product.selected_or_first_available_variant.id }}">
+</div>
+
+<script>
+  window.__productVariants = {{ product.variants | json }};
+  window.__productOptions  = {{ product.options_with_values | json }};
+</script>

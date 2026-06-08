@@ -1,0 +1,35 @@
+{% comment %}
+  Product Media Gallery — damso.com PRD (Section 5)
+  Desktop: Vertical stack of all images
+  Mobile: Horizontal swipeable CSS scroll-snap carousel + dots
+{% endcomment %}
+
+<div class="product-gallery" data-gallery>
+  {%- for media in product.media -%}
+    <div class="product-gallery__item" data-media-id="{{ media.id }}">
+      {%- if media.media_type == 'image' -%}
+        {{ media | image_url: width: 1200 | image_tag:
+            loading: 'lazy',
+            widths: '400,800,1200',
+            class: 'product-gallery__image',
+            data-media-index: forloop.index0
+        }}
+      {%- elsif media.media_type == 'video' -%}
+        {{- media | video_tag: autoplay: false, loop: false, controls: true, class: 'product-gallery__video' -}}
+      {%- endif -%}
+    </div>
+  {%- endfor -%}
+</div>
+
+{%- if product.media.size > 1 -%}
+  <div class="gallery-dots" data-gallery-dots>
+    {%- for media in product.media -%}
+      <button
+        type="button"
+        class="gallery-dot {% if forloop.first %}is-active{% endif %}"
+        data-dot-index="{{ forloop.index0 }}"
+        aria-label="Slide {{ forloop.index }}"
+      ></button>
+    {%- endfor -%}
+  </div>
+{%- endif -%}

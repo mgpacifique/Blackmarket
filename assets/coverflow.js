@@ -296,17 +296,24 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   let lastActiveHandle = null;
+  let currentIndex = 0;
 
+  let lastContentOffsetY = '0%';
   const updateModalState = () => {
     const rawHash = window.location.hash;
     const handle = rawHash && rawHash.length > 1 ? rawHash.slice(1) : null;
-    
+    const isCartOpen = document.body.classList.contains('cart-drawer-open');
+    const cartDrawer = document.getElementById('CartDrawer');
+
     // Scale down and dim Coverflow container on modal active
     const coverflow = document.getElementById('coverflow-container');
+    const activeModal = handle ? modals.find(modal => modal.dataset.handle === handle) : null;
+    const lastModal = lastActiveHandle ? modals.find(modal => modal.dataset.handle === lastActiveHandle) : null;
+
     if (coverflow) {
       gsap.to(coverflow, {
-        opacity: handle ? 0.35 : 1,
-        scale: handle ? 0.9 : 1,
+        opacity: (handle || isCartOpen) ? 0.35 : 1,
+        scale: (handle || isCartOpen) ? 0.9 : 1,
         duration: 0.8,
         ease: 'expo.inOut',
         overwrite: 'auto'
@@ -316,87 +323,88 @@ document.addEventListener('DOMContentLoaded', () => {
     if (handle) {
       // Sync Coverflow index with open product modal
       const activeIdx = getProductIndexByHandle(handle);
-      if (activeIdx !== -1) {
+      if (activeIdx !== -1 && activeIdx !== currentIndex) {
+        currentIndex = activeIdx;
         window.dispatchEvent(new CustomEvent('ipodIndexChanged', {
           detail: { index: activeIdx }
         }));
       }
+    }
 
-      const activeModal = modals.find(modal => modal.dataset.handle === handle);
-      const lastModal = lastActiveHandle ? modals.find(modal => modal.dataset.handle === lastActiveHandle) : null;
+    // 1. Details Modals visibility and interactivity
+    modals.forEach(modal => {
+      if (modal === cartDrawer) return; // handled separately
+      if (modal === activeModal || modal === lastModal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        modal.style.pointerEvents = (modal === activeModal && !isCartOpen) ? 'auto' : 'none';
+      } else {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        modal.style.pointerEvents = 'none';
+      }
+    });
 
-      if (activeModal) {
-        // Find indices to determine transition direction
+    // 2. Details Modals GSAP transition
+    if (activeModal) {
+      const bg = activeModal.querySelector('.modal-bg-color');
+      const content = activeModal.querySelector('.modal-content');
+
+      if (lastModal && lastModal !== activeModal && !isCartOpen) {
+        // Horizontal transition between details cards
         let diff = 0;
-        if (lastModal && lastModal !== activeModal) {
-          const lastIdx = getProductIndexByHandle(lastActiveHandle);
-          const len = items.length;
-          if (activeIdx !== -1 && lastIdx !== -1) {
-            diff = activeIdx - lastIdx;
-            // Wrap index diff to find shortest path
-            if (diff > len / 2) diff -= len;
-            else if (diff < -len / 2) diff += len;
-          }
+        const activeIdx = getProductIndexByHandle(handle);
+        const lastIdx = getProductIndexByHandle(lastActiveHandle);
+        const len = items.length;
+        if (activeIdx !== -1 && lastIdx !== -1) {
+          diff = activeIdx - lastIdx;
+          if (diff > len / 2) diff -= len;
+          else if (diff < -len / 2) diff += len;
         }
 
-        modals.forEach(modal => {
-          if (modal === activeModal || modal === lastModal) {
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            modal.style.pointerEvents = modal === activeModal ? 'auto' : 'none';
-          } else {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            modal.style.pointerEvents = 'none';
-          }
-        });
+        const lastContent = lastModal.querySelector('.modal-content');
+        const lastBg = lastModal.querySelector('.modal-bg-color');
 
-        const bg = activeModal.querySelector('.modal-bg-color');
-        const content = activeModal.querySelector('.modal-content');
-
-        if (lastModal && lastModal !== activeModal) {
-          // Simultaneous slider transition
-          const lastContent = lastModal.querySelector('.modal-content');
-          const lastBg = lastModal.querySelector('.modal-bg-color');
+        if (content && lastContent) {
+          gsap.killTweensOf([content, lastContent, bg, lastBg]);
+          gsap.set(content, { y: diff > 0 ? '100%' : '-100%' });
           
-          if (content && lastContent) {
-            gsap.killTweensOf([content, lastContent, bg, lastBg]);
-            
-            // Set starting position for new modal content
-            gsap.set(content, { y: diff > 0 ? '100%' : '-100%' });
-            
-            let tl = gsap.timeline({
-              defaults: { duration: 1.0, ease: 'expo.inOut' },
-              onComplete: () => {
+          let tl = gsap.timeline({
+            defaults: { duration: 1.0, ease: 'expo.inOut' },
+            onComplete: () => {
+              if (window.location.hash !== '#' + lastActiveHandle) {
                 lastModal.classList.add('hidden');
                 lastModal.classList.remove('flex');
               }
-            });
-            
-            tl.to(lastContent, { y: diff > 0 ? '-100%' : '100%' }, 0);
-            tl.to(content, { y: '0%' }, 0);
-            
-            // Keep backdrop static/active
-            if (bg) gsap.set(bg, { opacity: 1 });
-            if (lastBg) tl.to(lastBg, { opacity: 0 }, 0);
-          }
-        } else {
-          // Standard slide up from bottom when opening from home
-          if (bg && content) {
-            gsap.killTweensOf([bg, content]);
-            gsap.fromTo(bg, { opacity: 0 }, { opacity: 1, duration: 1.0, ease: 'expo.inOut' });
-            gsap.fromTo(content, { y: '100%' }, { y: '0%', duration: 1.0, ease: 'expo.inOut' });
+            }
+          });
+          
+          tl.to(lastContent, { y: diff > 0 ? '-100%' : '100%' }, 0);
+          tl.to(content, { y: '0%' }, 0);
+          if (bg) gsap.set(bg, { opacity: 1 });
+          if (lastBg) tl.to(lastBg, { opacity: 0 }, 0);
+        }
+      } else {
+        // Single details card animation (slide up or cart slide-overlay state)
+        if (bg && content) {
+          gsap.killTweensOf([bg, content]);
+          if (isCartOpen) {
+            // Slide details card UP out of screen
+            gsap.to(content, { y: '-100%', duration: 1.0, ease: 'expo.inOut' });
+            gsap.to(bg, { opacity: 0, duration: 1.0, ease: 'expo.inOut' });
+          } else {
+            // Slide details card back DOWN into view
+            const startY = (lastContentOffsetY === '-100%') ? '-100%' : '100%';
+            gsap.fromTo(content, { y: content.style.transform ? content.style.transform : startY }, { y: '0%', duration: 1.0, ease: 'expo.inOut' });
+            gsap.fromTo(bg, { opacity: bg.style.opacity ? parseFloat(bg.style.opacity) : 0 }, { opacity: 1, duration: 1.0, ease: 'expo.inOut' });
           }
         }
       }
-      lastActiveHandle = handle;
     } else {
-      // Close active modal
-      const lastModal = lastActiveHandle ? modals.find(modal => modal.dataset.handle === lastActiveHandle) : null;
-      if (lastModal) {
+      // Close details card completely
+      if (lastModal && !isCartOpen) {
         const bg = lastModal.querySelector('.modal-bg-color');
         const content = lastModal.querySelector('.modal-content');
-        
         if (bg && content) {
           gsap.killTweensOf([bg, content]);
           gsap.to(bg, { opacity: 0, duration: 1.0, ease: 'expo.inOut' });
@@ -405,27 +413,93 @@ document.addEventListener('DOMContentLoaded', () => {
             duration: 1.0,
             ease: 'expo.inOut',
             onComplete: () => {
-              modals.forEach(modal => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-                modal.style.pointerEvents = 'none';
-              });
+              if (!window.location.hash) {
+                lastModal.classList.add('hidden');
+                lastModal.classList.remove('flex');
+              }
             }
-          });
-        } else {
-          modals.forEach(modal => {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            modal.style.pointerEvents = 'none';
           });
         }
       }
-      lastActiveHandle = null;
     }
+
+    // 3. Cart Drawer Modal GSAP transition
+    if (cartDrawer) {
+      const bg = cartDrawer.querySelector('.modal-bg-color');
+      const content = cartDrawer.querySelector('.modal-content');
+
+      if (isCartOpen) {
+        cartDrawer.classList.remove('hidden');
+        cartDrawer.classList.add('flex');
+        cartDrawer.style.pointerEvents = 'auto';
+
+        if (bg && content) {
+          gsap.killTweensOf([bg, content]);
+          gsap.fromTo(bg, { opacity: bg.style.opacity ? parseFloat(bg.style.opacity) : 0 }, { opacity: 1, duration: 1.0, ease: 'expo.inOut' });
+          gsap.fromTo(content, { y: content.style.transform ? content.style.transform : '100%' }, { y: '0%', duration: 1.0, ease: 'expo.inOut' });
+        }
+      } else {
+        cartDrawer.style.pointerEvents = 'none';
+        if (bg && content) {
+          gsap.killTweensOf([bg, content]);
+          gsap.to(bg, { opacity: 0, duration: 1.0, ease: 'expo.inOut' });
+          gsap.to(content, {
+            y: '100%',
+            duration: 1.0,
+            ease: 'expo.inOut',
+            onComplete: () => {
+              if (!document.body.classList.contains('cart-drawer-open')) {
+                cartDrawer.classList.add('hidden');
+                cartDrawer.classList.remove('flex');
+              }
+            }
+          });
+        }
+      }
+    }
+
+    lastActiveHandle = handle;
+    lastContentOffsetY = isCartOpen ? '-100%' : '0%';
   };
 
   window.addEventListener('hashchange', updateModalState);
+  
+  // Observe body class changes to sync modal and cart drawer GSAP animations
+  const bodyObserver = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.attributeName === 'class') {
+        updateModalState();
+      }
+    });
+  });
+  bodyObserver.observe(document.body, { attributes: true });
+
   updateModalState(); // Initial check
+
+  // Gallery item height calculation (matches damso.com's GSAP-based sizing)
+  const sizeGalleryItems = () => {
+    modals.forEach(modal => {
+      const galleryWrapper = modal.querySelector('.gallery-wrapper');
+      if (!galleryWrapper) return;
+      const w = galleryWrapper.offsetWidth;
+      const h = galleryWrapper.offsetHeight;
+      if (w === 0 && h === 0) return;
+      const itemHeight = Math.min(w, h);
+      const galleryItems = modal.querySelectorAll('.gallery-item');
+      galleryItems.forEach(item => {
+        item.style.height = itemHeight + 'px';
+      });
+    });
+  };
+
+  // Run sizing after modal transitions complete and on resize
+  window.addEventListener('resize', sizeGalleryItems);
+  window.addEventListener('hashchange', () => {
+    // Delay to allow GSAP animation to reveal the modal first
+    setTimeout(sizeGalleryItems, 100);
+    setTimeout(sizeGalleryItems, 1100);
+  });
+  sizeGalleryItems();
 
   // Bind click logic inside each product detail card
   modals.forEach(modal => {
@@ -498,27 +572,56 @@ document.addEventListener('DOMContentLoaded', () => {
       updateVariantState();
     }
 
+    // Close button click listener
+    const closeBtn = modal.querySelector('.product-detail-close-btn');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.hash = '#';
+      });
+    }
+
     // Plus d'infos drawer toggle
     const plusBtn = modal.querySelector('.plus-infos-btn');
     const overlay = modal.querySelector('.plus-infos-overlay');
     if (plusBtn && overlay) {
       let overlayOpen = false;
+      const innerDiv = plusBtn.querySelector('div');
+      const textLabel = plusBtn.querySelector('span, .pt-1');
+      const pathEl = plusBtn.querySelector('path');
+      
       plusBtn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
         overlayOpen = !overlayOpen;
-        const textLabel = plusBtn.querySelector('.pt-1');
-        const pathEl = plusBtn.querySelector('path');
+        
+        // Check if card is dark (album)
+        const isAlbum = modal.querySelector('.relative.h-full.w-full').classList.contains('bg-blur-bg');
+        const bgClass = isAlbum ? 'bg-blur-bg' : 'bg-blur-bg-light';
+        const borderClass = isAlbum ? 'border-white/10' : 'border-black/5';
+
         if (overlayOpen) {
           overlay.classList.remove('invisible', 'translate-y-24');
           overlay.classList.add('visible', 'translate-y-0');
           if (textLabel) textLabel.textContent = 'fermer';
           if (pathEl) pathEl.setAttribute('d', 'M17.331 12.75H6.668');
+          
+          plusBtn.classList.add('w-full');
+          if (innerDiv) {
+            innerDiv.classList.add('w-full');
+            innerDiv.classList.remove(bgClass, 'backdrop-blur-[15px]', 'border', borderClass);
+          }
         } else {
           overlay.classList.add('invisible', 'translate-y-24');
           overlay.classList.remove('visible', 'translate-y-0');
           if (textLabel) textLabel.textContent = "plus d'infos";
           if (pathEl) pathEl.setAttribute('d', 'M17.331 12.084H6.668M11.916 17.331V6.669');
+          
+          plusBtn.classList.remove('w-full');
+          if (innerDiv) {
+            innerDiv.classList.remove('w-full');
+            innerDiv.classList.add(bgClass, 'backdrop-blur-[15px]', 'border', borderClass);
+          }
         }
       });
     }
@@ -532,52 +635,32 @@ document.addEventListener('DOMContentLoaded', () => {
         if (submitBtn) submitBtn.disabled = true;
         
         const formData = new FormData(form);
-        
-        // Query Dawn cart element to fetch required rendering sections
-        const cartNotification = document.querySelector('cart-notification');
-        const cartDrawer = document.querySelector('cart-drawer');
-        const cart = cartNotification || cartDrawer;
-        if (cart && typeof cart.getSectionsToRender === 'function') {
-          formData.append(
-            'sections',
-            cart.getSectionsToRender().map((section) => section.id)
-          );
-          formData.append('sections_url', window.location.pathname);
-          if (typeof cart.setActiveElement === 'function') {
-            cart.setActiveElement(document.activeElement);
-          }
-        }
 
         fetch('/cart/add.js', {
           method: 'POST',
           body: formData
         })
-        .then(response => response.json())
-        .then(data => {
-          // Open the cart drawer
-          document.body.classList.add('cart-drawer-open');
-          
-          // Dawn theme standard custom elements support
-          if (cartNotification && typeof cartNotification.renderContents === 'function') {
-            cartNotification.renderContents(data);
-          } else if (cartDrawer && typeof cartDrawer.renderContents === 'function') {
-            cartDrawer.renderContents(data);
-          } else {
-            // Manual fallback: update page header bubble count
-            const bubbleIcon = document.querySelector('.cart-count-bubble, [id^="cart-icon-bubble"]');
-            if (bubbleIcon) {
-              fetch('/cart.js')
-              .then(res => res.json())
-              .then(cart => {
-                const span = bubbleIcon.querySelector('span:not(.visually-hidden)');
-                if (span) span.textContent = cart.item_count;
-                else bubbleIcon.textContent = cart.item_count;
-              });
-            }
+        .then(response => {
+          if (!response.ok) {
+            return response.json().then(errData => { throw errData; });
           }
+          return response.json();
+        })
+        .then(data => {
+          // 1. Show custom toast notification
+          showToast(data.title || data.product_title, data.image || null, false);
+          
+          // 2. Fetch and refresh Cart Drawer contents
+          updateCartDrawerDOM();
+
+          // 3. Slide cart drawer into view after a slight delay
+          setTimeout(() => {
+            document.body.classList.add('cart-drawer-open');
+          }, 600);
         })
         .catch(error => {
           console.error('Error adding variant to cart:', error);
+          showToast(error.description || 'Erreur lors de l\'ajout', null, true);
         })
         .finally(() => {
           if (submitBtn) submitBtn.disabled = false;
@@ -585,6 +668,186 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
   });
+
+  // Custom Toaster helper matching Damso.com style
+  const showToast = (title, imageSrc, isError = false) => {
+    let toaster = document.querySelector('[data-rht-toaster]');
+    if (!toaster) {
+      toaster = document.createElement('div');
+      toaster.setAttribute('data-rht-toaster', '');
+      toaster.className = 'fixed z-[9999] pointer-events-none';
+      toaster.style.top = '16px';
+      toaster.style.right = '16px';
+      toaster.style.left = '16px';
+      toaster.style.bottom = '16px';
+      document.body.appendChild(toaster);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = 'span-w-5 md:span-w-4 pointer-events-auto rounded-lg bg-grey p-8 relative ml-auto mb-16 shadow-lg';
+    toast.style.width = '320px';
+    toast.style.maxWidth = 'calc(100vw - 32px)';
+    toast.style.color = '#000';
+    gsap.set(toast, { x: '105%' });
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'flex w-full items-center text-left bg-transparent border-none p-0 cursor-pointer';
+    button.addEventListener('click', (e) => {
+      e.preventDefault();
+      gsap.to(toast, { x: '105%', duration: 0.5, ease: 'expo.in', onComplete: () => toast.remove() });
+      document.body.classList.add('cart-drawer-open');
+    });
+
+    if (imageSrc) {
+      const imgWrapper = document.createElement('div');
+      imgWrapper.className = 'h-69 w-69 flex-shrink-0 overflow-clip rounded-xs bg-white border border-black/5 mr-16';
+      const img = document.createElement('img');
+      img.src = imageSrc;
+      img.alt = '';
+      img.className = 'h-full w-full object-contain';
+      imgWrapper.appendChild(img);
+      button.appendChild(imgWrapper);
+    }
+
+    const textWrapper = document.createElement('div');
+    textWrapper.className = 'w-full text-left leading-none';
+
+    const statusBadge = document.createElement('span');
+    statusBadge.className = `mb-12 inline-flex items-center rounded px-8 py-2 font-medium text-10 uppercase ${isError ? 'bg-red text-white' : 'bg-grey-20 text-black'}`;
+    statusBadge.textContent = isError ? 'Erreur' : 'Ajouté au panier';
+
+    const titleEl = document.createElement('div');
+    titleEl.className = `text-left text-12 font-bold uppercase truncate ${isError ? 'text-red' : 'text-black'}`;
+    titleEl.style.width = '190px';
+    titleEl.textContent = title;
+
+    textWrapper.appendChild(statusBadge);
+    textWrapper.appendChild(titleEl);
+    button.appendChild(textWrapper);
+    toast.appendChild(button);
+
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'absolute top-8 right-8 cursor-pointer bg-transparent border-none p-4';
+    closeBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#858585" viewBox="0 0 24 24" class="w-16 h-16"><path stroke-width="1.5" d="M18 6L6 18M6 6l12 12"></path></svg>';
+    closeBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      gsap.to(toast, { x: '105%', duration: 0.5, ease: 'expo.in', onComplete: () => toast.remove() });
+    });
+    toast.appendChild(closeBtn);
+
+    toaster.appendChild(toast);
+
+    gsap.to(toast, { x: '0%', duration: 1.0, ease: 'expo.out' });
+
+    setTimeout(() => {
+      if (toast.parentElement) {
+        gsap.to(toast, { x: '105%', duration: 0.5, ease: 'expo.in', onComplete: () => toast.remove() });
+      }
+    }, 4000);
+  };
+
+  // Cart DOM refreshing via section rendering API
+  const updateCartDrawerDOM = () => {
+    return fetch('/cart?section_id=cart-drawer')
+      .then(res => res.text())
+      .then(html => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        
+        const newBody = doc.getElementById('CartDrawer-Body');
+        const currentBody = document.getElementById('CartDrawer-Body');
+        if (newBody && currentBody) {
+          currentBody.innerHTML = newBody.innerHTML;
+        }
+
+        const newTotal = doc.getElementById('CartDrawer-Total');
+        const currentTotal = document.getElementById('CartDrawer-Total');
+        if (newTotal && currentTotal) {
+          currentTotal.textContent = newTotal.textContent;
+        }
+
+        const newFooter = doc.querySelector('.custom-cart-footer');
+        const currentFooter = document.querySelector('.custom-cart-footer');
+        if (newFooter && currentFooter) {
+          currentFooter.innerHTML = newFooter.innerHTML;
+        }
+
+        bindCartDrawerEvents();
+
+        // Update bubble counts
+        fetch('/cart.js')
+          .then(res => res.json())
+          .then(cartData => {
+            const countBubbles = document.querySelectorAll('.ipod-menu nav span, .ipod-cart-toggle-btn span, .cart-count-bubble');
+            countBubbles.forEach(bubble => {
+              bubble.textContent = cartData.item_count;
+            });
+          });
+      })
+      .catch(err => console.error('Error updating cart drawer DOM:', err));
+  };
+
+  // Steppers and removals binding for cart drawer
+  const bindCartDrawerEvents = () => {
+    const cartDrawer = document.getElementById('CartDrawer');
+    if (!cartDrawer) return;
+
+    const closeBtns = cartDrawer.querySelectorAll('.custom-cart-close');
+    closeBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.body.classList.remove('cart-drawer-open');
+      });
+    });
+
+    const qtyBtns = cartDrawer.querySelectorAll('.cart-qty-minus, .cart-qty-plus');
+    qtyBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const line = btn.dataset.line;
+        const qty = btn.dataset.qty;
+        updateCartItemQuantity(line, qty);
+      });
+    });
+
+    const removeBtns = cartDrawer.querySelectorAll('.cart-remove-btn');
+    removeBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const line = btn.dataset.line;
+        updateCartItemQuantity(line, 0);
+      });
+    });
+  };
+
+  const updateCartItemQuantity = (line, quantity) => {
+    const data = {
+      line: parseInt(line),
+      quantity: parseInt(quantity)
+    };
+
+    fetch('/cart/change.js', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(cartData => {
+      updateCartDrawerDOM();
+    })
+    .catch(err => {
+      console.error('Error updating quantity:', err);
+      showToast('Erreur lors de la modification', null, true);
+    });
+  };
+
+  // Bind cart events initially
+  bindCartDrawerEvents();
 
   // Initialize
   renderCoverflow();
