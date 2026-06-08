@@ -75,11 +75,11 @@
   <div class="modal-bg-color -z-1 absolute inset-0 cursor-default appearance-none {% if product_type_lower == 'album' %}bg-black{% else %}bg-white{% endif %} opacity-0"></div>
   
   <!-- Content Wrapper -->
-  <div class="modal-content md:span-w-6 h-full w-full" style="padding-bottom:120px;">
+  <div class="modal-content md:span-w-6 h-full w-full" style="padding-top:{{ section.settings.modal_padding_top | default: 0 }}px;padding-bottom:{{ section.settings.modal_padding_bottom | default: 100 }}px;">
     <div class="relative h-full w-full md:rounded-lg overflow-clip {% if product_type_lower == 'album' %}bg-blur-bg text-white{% else %}bg-blur-bg-light text-black{% endif %} backdrop-blur-[15px] border border-black/5 shadow-2xl">
       
       <!-- Inside card: product details layout -->
-      <div class="flex h-full w-full flex-col p-20 pb-105">
+      <div class="flex h-full w-full flex-col" style="padding:{{ section.settings.card_padding_top | default: 12 }}px {{ section.settings.card_padding | default: 16 }}px {{ section.settings.card_padding | default: 16 }}px;">
         
         <!-- Card Header -->
         <div class="absolute top-20 left-20 z-2 inline-flex min-h-47 w-[76%] items-center md:w-[80%]">
@@ -103,12 +103,14 @@
         
         <!-- Gallery/Image Container -->
         {%- assign img_height = section.settings.image_height | default: 200 -%}
-        <div style="text-align:center;margin-top:5px;margin-bottom:16px;position:relative;flex:1;display:flex;align-items:center;justify-content:center;">
+        {%- assign img_margin = section.settings.image_margin_top | default: 5 -%}
+        {%- assign img_fit = section.settings.image_fit | default: 'contain' -%}
+        <div style="text-align:center;margin-top:{{ img_margin }}px;margin-bottom:16px;position:relative;flex:1;display:flex;align-items:center;justify-content:center;">
           {% if product.featured_image %}
             <img
               src="{{ product.featured_image | image_url: width: 960 }}"
               alt="{{ product.title | escape }}"
-              style="display:inline-block;height:{{ img_height }}px;width:auto;max-width:100%;object-fit:contain;border-radius:6px;"
+              style="display:inline-block;height:{{ img_height }}px;width:auto;max-width:100%;object-fit:{{ img_fit }};border-radius:6px;"
               loading="lazy"
             >
           {% else %}
@@ -136,21 +138,21 @@
         </div>
         
         <!-- Footer / Form -->
-        <div class="mt-auto">
+        <div style="flex-shrink:0;">
           {% if product.variants.size > 1 %}
-            <div class="product-options-wrapper mt-10 mb-10 flex flex-col gap-8">
+            <div class="product-options-wrapper mb-8 flex flex-col gap-4">
               {% for option in product.options_with_values %}
                 {% if option.name != 'Title' %}
-                  <div class="flex h-32 items-center justify-between">
-                    <label for="Option-{{ product.id }}-{{ forloop.index0 }}" class="pt-1 pr-14 font-bold text-12 {% if product_type_lower == 'album' %}text-white/60{% else %}text-grey-60{% endif %} uppercase">
+                  <div class="flex h-28 items-center justify-between">
+                    <label for="Option-{{ product.id }}-{{ forloop.index0 }}" class="pt-1 pr-14 font-bold text-11 {% if product_type_lower == 'album' %}text-white/60{% else %}text-grey-60{% endif %} uppercase">
                       {{ option.name }}
                     </label>
-                    <select id="Option-{{ product.id }}-{{ forloop.index0 }}" class="variant-select bg-transparent {% if product_type_lower == 'album' %}text-white border-white/20{% else %}text-grey-60 border-black/10{% endif %} rounded px-10 py-4 font-bold text-12 uppercase cursor-pointer outline-none focus:border-black" data-index="{{ forloop.index0 }}">
-                      {% for value in option.values %}
-                        <option value="{{ value | escape }}" class="{% if product_type_lower == 'album' %}bg-black text-white{% else %}bg-white text-black{% endif %}" {% if option.selected_value == value %}selected{% endif %}>
-                          {{ value }}
-                        </option>
-                      {% endfor %}
+                    <select id="Option-{{ product.id }}-{{ forloop.index0 }}" class="variant-select bg-transparent {% if product_type_lower == 'album' %}text-white border-white/20{% else %}text-grey-60 border-black/10{% endif %} rounded px-10 py-2 font-bold text-11 uppercase cursor-pointer outline-none focus:border-black" data-index="{{ forloop.index0 }}">
+                    {% for value in option.values %}
+                      <option value="{{ value | escape }}" class="{% if product_type_lower == 'album' %}bg-black text-white{% else %}bg-white text-black{% endif %}" {% if option.selected_value == value %}selected{% endif %}>
+                        {{ value }}
+                      </option>
+                    {% endfor %}
                     </select>
                   </div>
                 {% endif %}
@@ -162,9 +164,9 @@
             {{ product.variants | json }}
           </script>
 
-          <form method="post" action="/cart/add" class="add-to-cart-form mt-8 w-full" data-shopify-mini-cart-form="true">
+          <form method="post" action="/cart/add" class="add-to-cart-form w-full" data-shopify-mini-cart-form="true">
             <input type="hidden" name="id" value="{{ product.first_available_variant.id }}">
-            <button type="submit" class="add-to-cart-btn w-full {% if product_type_lower == 'album' %}bg-white text-black hover:bg-grey-20{% else %}bg-black text-white hover:bg-grey-60{% endif %} font-bold py-14 px-20 rounded-md text-12 uppercase tracking-wide transition-colors flex justify-center items-center gap-8" {% unless product.available %}disabled{% endunless %}>
+            <button type="submit" class="add-to-cart-btn {% if product_type_lower == 'album' %}bg-white text-black hover:bg-grey-20{% else %}bg-black text-white hover:bg-grey-60{% endif %} font-bold px-16 rounded-md text-11 uppercase tracking-wide transition-colors flex justify-center items-center gap-8" style="width:{{ section.settings.button_width | default: 80 }}%;margin:0 auto;padding-top:{{ section.settings.button_padding_y | default: 10 }}px;padding-bottom:{{ section.settings.button_padding_y | default: 10 }}px;" {% unless product.available %}disabled{% endunless %}>
               <span class="add-to-cart-text">
                 {% if product.available %}
                   Ajouter au panier - {{ product.price | money_without_trailing_zeros }}
@@ -195,39 +197,110 @@
     },
     {
       "type": "header",
-      "content": "Product Image Settings"
+      "content": "── Modal Container ──"
     },
     {
       "type": "range",
-      "id": "image_height",
-      "label": "Image height (px)",
-      "min": 150,
-      "max": 700,
-      "step": 10,
-      "default": 400,
+      "id": "modal_padding_top",
+      "label": "Modal top spacing",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "default": 0,
       "unit": "px"
     },
     {
       "type": "range",
-      "id": "image_width",
-      "label": "Image width (%)",
-      "min": 30,
-      "max": 100,
+      "id": "modal_padding_bottom",
+      "label": "Modal bottom spacing (iPod nav)",
+      "min": 60,
+      "max": 160,
       "step": 5,
-      "default": 90,
-      "unit": "%"
+      "default": 100,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "── Card Content ──"
+    },
+    {
+      "type": "range",
+      "id": "card_padding",
+      "label": "Card inner padding",
+      "min": 8,
+      "max": 40,
+      "step": 2,
+      "default": 16,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "card_padding_top",
+      "label": "Card top padding",
+      "min": 4,
+      "max": 40,
+      "step": 2,
+      "default": 12,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "── Product Image ──"
+    },
+    {
+      "type": "range",
+      "id": "image_height",
+      "label": "Image height",
+      "min": 100,
+      "max": 500,
+      "step": 10,
+      "default": 200,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "image_margin_top",
+      "label": "Image top margin",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "default": 4,
+      "unit": "px"
     },
     {
       "type": "select",
       "id": "image_fit",
       "label": "Image fit mode",
       "options": [
-        { "value": "contain", "label": "Contain (show full image)" },
+        { "value": "contain", "label": "Contain (full image)" },
         { "value": "cover", "label": "Cover (fill & crop)" },
-        { "value": "fill", "label": "Fill (stretch)" },
-        { "value": "scale-down", "label": "Scale down (natural or smaller)" }
+        { "value": "scale-down", "label": "Scale down" }
       ],
       "default": "contain"
+    },
+    {
+      "type": "header",
+      "content": "── Add to Cart Button ──"
+    },
+    {
+      "type": "range",
+      "id": "button_width",
+      "label": "Button width",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "default": 80,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "button_padding_y",
+      "label": "Button vertical padding",
+      "min": 6,
+      "max": 20,
+      "step": 1,
+      "default": 10,
+      "unit": "px"
     }
   ],
   "presets": [
