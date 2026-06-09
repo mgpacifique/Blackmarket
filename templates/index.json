@@ -23,7 +23,7 @@
         "image_margin_bottom": 20,
         "image_fit": "contain",
         "image_inner_padding": 0,
-        "button_margin_top": 0,
+        "button_margin_top": 4,
         "button_width": 70,
         "button_padding_y": 12
       }
