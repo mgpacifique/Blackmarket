@@ -75,110 +75,95 @@
   <div class="modal-bg-color -z-1 absolute inset-0 cursor-default appearance-none {% if product_type_lower == 'album' %}bg-black{% else %}bg-white{% endif %} opacity-0"></div>
   
   <!-- Content Wrapper -->
-  <div class="modal-content md:span-w-6 h-full w-full" style="padding-top:{{ section.settings.modal_padding_top | default: 0 }}px;padding-bottom:{{ section.settings.modal_padding_bottom | default: 100 }}px;">
-    <div class="relative h-full w-full md:rounded-lg overflow-clip {% if product_type_lower == 'album' %}bg-blur-bg text-white{% else %}bg-blur-bg-light text-black{% endif %} backdrop-blur-[15px] border border-black/5 shadow-2xl">
+  <div class="modal-content md:span-w-6 h-full md:h-auto w-full md:w-[45vw] md:mx-auto" style="max-width: {{ section.settings.modal_max_width | default: 500 }}px; max-height: {{ section.settings.modal_max_height | default: 85 }}vh; margin-top: {{ section.settings.modal_margin_top | default: 0 }}px; align-self: {{ section.settings.modal_vertical_alignment | default: 'center' }};">
+    <div class="relative h-full w-full md:rounded-lg overflow-clip {% if product_type_lower == 'album' %}bg-blur-bg text-white{% else %}bg-[#EDEDED] text-black{% endif %} backdrop-blur-[15px] border border-black/5 shadow-2xl flex flex-col" style="padding: {{ section.settings.card_padding | default: 20 }}px; padding-bottom: {{ section.settings.card_padding_bottom | default: 105 }}px;">
       
-      <!-- Inside card: product details layout -->
-      <div class="flex h-full w-full flex-col" style="padding:{{ section.settings.card_padding_top | default: 12 }}px {{ section.settings.card_padding | default: 16 }}px {{ section.settings.card_padding | default: 16 }}px;">
-        
-        <!-- Card Header -->
-        <div class="absolute top-20 left-20 z-2 inline-flex min-h-47 w-[76%] items-center md:w-[80%]">
-          {% if product_type_lower == 'album' %}
-            <div class="mr-16 h-73 w-73 shrink-0 overflow-clip rounded-sm">
-              <img src="{{ product.featured_image | image_url: width: 150 }}" alt="" class="h-full w-full object-cover">
-            </div>
-          {% endif %}
-          <div class="flex flex-wrap items-center gap-x-24 gap-y-4 uppercase">
-            <h2 class="pt-1 font-bold text-12 {% if product_type_lower == 'album' %}text-white{% else %}text-grey-60{% endif %}">{{ product.title }}</h2>
-            <span class="flex items-center rounded px-8 font-medium text-10 {% if product_type_lower == 'album' %}bg-white/20 text-white{% else %}bg-grey-20 text-black{% endif %}">
-              <span class="pt-1">{{ product.type | default: 'Merch' }}</span>
-            </span>
-          </div>
+      <!-- Card Header -->
+      <div class="w-full flex items-start justify-between mb-20 shrink-0 relative z-10">
+        <div class="flex flex-wrap items-center gap-x-24 gap-y-4 uppercase">
+          <h2 class="pt-1 font-bold text-12 {% if product_type_lower == 'album' %}text-white{% else %}text-black{% endif %}">{{ product.title }}</h2>
+          <span class="flex items-center rounded px-8 font-medium text-10 {% if product_type_lower == 'album' %}bg-white/20 text-white{% else %}bg-black/10 text-black{% endif %}">
+            <span class="pt-1">{{ product.type | default: 'Merch' }}</span>
+          </span>
         </div>
         
         <!-- Close Button -->
-        <button type="button" class="product-detail-close-btn absolute top-20 right-20 z-2 grid aspect-square w-47 place-content-center rounded-lg {% if product_type_lower == 'album' %}bg-white/10 text-white hover:bg-white/20{% else %}bg-black/5 text-black hover:bg-black/10{% endif %} backdrop-blur-2xl transition-colors" aria-label="Close details">
+        <button type="button" class="product-detail-close-btn flex aspect-square w-40 items-center justify-center rounded-lg {% if product_type_lower == 'album' %}bg-white/10 text-white hover:bg-white/20{% else %}bg-black/5 text-black hover:bg-black/10{% endif %} backdrop-blur-2xl transition-colors shrink-0" aria-label="Close details">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-24 stroke-current"><path stroke-width="1.5" d="M18 6L6 18M6 6l12 12"></path></svg>
         </button>
-        
-        <!-- Gallery/Image Container -->
-        {%- assign img_height = section.settings.image_height | default: 200 -%}
-        {%- assign img_margin = section.settings.image_margin_top | default: 5 -%}
-        {%- assign img_fit = section.settings.image_fit | default: 'contain' -%}
-        <div style="text-align:center;margin-top:{{ img_margin }}px;margin-bottom:16px;position:relative;flex:1;display:flex;align-items:center;justify-content:center;">
+      </div>
+
+      <!-- Gallery/Image Container -->
+      <div class="gallery-wrapper relative flex-1 w-full rounded-xs flex flex-col items-center justify-center overflow-hidden shrink bg-white shadow-sm" style="min-height: {{ section.settings.image_min_height | default: 200 }}px; margin-bottom: {{ section.settings.image_margin_bottom | default: 20 }}px;">
+        <picture class="relative w-full h-full flex items-center justify-center">
           {% if product.featured_image %}
-            <img
-              src="{{ product.featured_image | image_url: width: 960 }}"
-              alt="{{ product.title | escape }}"
-              style="display:inline-block;height:{{ img_height }}px;width:auto;max-width:100%;object-fit:{{ img_fit }};border-radius:6px;"
-              loading="lazy"
-            >
+            <img src="{{ product.featured_image | image_url: width: 1200 }}" alt="{{ product.title | escape }}" class="absolute inset-0 w-full h-full {% unless product_type_lower == 'album' %}mix-blend-multiply{% endunless %}" style="object-fit: {{ section.settings.image_fit | default: 'contain' }}; padding: {{ section.settings.image_inner_padding | default: 20 }}px;" loading="lazy">
           {% else %}
-            <div style="height:{{ img_height }}px;display:flex;align-items:center;justify-content:center;" class="text-gray-500 text-xs">{{ product.title }}</div>
+            <div class="flex items-center justify-center h-full text-black/40 text-xs">{{ product.title }}</div>
           {% endif %}
-          
-          <!-- Plus d'infos Overlay -->
-          <div class="pointer-events-none absolute top-0 left-0 z-2 h-full w-full overflow-clip p-10">
-            <div class="plus-infos-overlay pointer-events-auto invisible flex h-full w-full flex-col px-12 py-8 translate-y-24 transition-transform duration-500 ease-expo-out overflow-clip rounded-xs {% if product_type_lower == 'album' %}bg-blur-bg text-white{% else %}bg-blur-bg-light text-black{% endif %} backdrop-blur-[15px]">
-              <div class="my-30 grid h-full items-center overflow-y-auto px-20">
-                <div class="grid py-24 text-12 {% if product_type_lower == 'album' %}text-white/80{% else %}text-grey-60{% endif %}">
-                  {{ product.description }}
-                </div>
+        </picture>
+
+        <!-- Plus d'infos Overlay -->
+        <div class="absolute inset-x-10 bottom-10 h-auto z-10 pointer-events-none flex flex-col justify-end">
+          <div class="plus-infos-overlay pointer-events-auto invisible h-0 flex flex-col px-12 py-8 translate-y-24 transition-all duration-500 ease-expo-out overflow-clip rounded-xs bg-white/90 backdrop-blur-[15px] mb-10">
+            <div class="overflow-y-auto px-8">
+              <div class="py-12 text-12 text-black/80">
+                {{ product.description }}
               </div>
             </div>
-            <div class="pointer-events-auto absolute top-0 left-0 w-full p-10">
-              <button type="button" class="plus-infos-btn group overflow-clip rounded-xs">
-                <div class="inline-flex h-40 items-center justify-between gap-10 px-12 {% if product_type_lower == 'album' %}bg-blur-bg text-white border-white/10{% else %}bg-blur-bg-light text-grey-60 border-black/5{% endif %} backdrop-blur-[15px] border rounded-xs">
-                  <span class="pt-1 font-bold text-12 uppercase opacity-60 group-hover:opacity-100">Plus d'infos</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" role="presentation" class="w-24 stroke-current opacity-60 group-hover:opacity-100"><path stroke-width="1.5" d="M17.331 12.084H6.668M11.916 17.331V6.669"></path></svg>
-                </div>
-              </button>
-            </div>
+          </div>
+          <div class="pointer-events-auto">
+            <button type="button" class="plus-infos-btn group relative items-center appearance-none cursor-pointer inline-block overflow-clip rounded-xs w-[140px]">
+              <div class="inline-flex h-40 w-full items-center justify-between gap-10 px-12 bg-black/5 backdrop-blur-[15px] text-black border border-black/10 rounded-xs shadow-sm hover:bg-black/10 transition-colors">
+                <div class="pt-1 font-bold text-10 uppercase">Plus d'infos</div>
+                <span class="text-12 font-bold">+</span>
+              </div>
+            </button>
           </div>
         </div>
-        
-        <!-- Footer / Form -->
-        <div style="flex-shrink:0;">
-          {% if product.variants.size > 1 %}
-            <div class="product-options-wrapper mb-8 flex flex-col gap-4">
-              {% for option in product.options_with_values %}
-                {% if option.name != 'Title' %}
-                  <div class="flex h-28 items-center justify-between">
-                    <label for="Option-{{ product.id }}-{{ forloop.index0 }}" class="pt-1 pr-14 font-bold text-11 {% if product_type_lower == 'album' %}text-white/60{% else %}text-grey-60{% endif %} uppercase">
-                      {{ option.name }}
-                    </label>
-                    <select id="Option-{{ product.id }}-{{ forloop.index0 }}" class="variant-select bg-transparent {% if product_type_lower == 'album' %}text-white border-white/20{% else %}text-grey-60 border-black/10{% endif %} rounded px-10 py-2 font-bold text-11 uppercase cursor-pointer outline-none focus:border-black" data-index="{{ forloop.index0 }}">
-                    {% for value in option.values %}
-                      <option value="{{ value | escape }}" class="{% if product_type_lower == 'album' %}bg-black text-white{% else %}bg-white text-black{% endif %}" {% if option.selected_value == value %}selected{% endif %}>
-                        {{ value }}
-                      </option>
-                    {% endfor %}
-                    </select>
-                  </div>
-                {% endif %}
-              {% endfor %}
-            </div>
-          {% endif %}
-          
-          <script type="application/json" class="product-variants-json">
-            {{ product.variants | json }}
-          </script>
-
-          <form method="post" action="/cart/add" class="add-to-cart-form w-full" data-shopify-mini-cart-form="true">
-            <input type="hidden" name="id" value="{{ product.first_available_variant.id }}">
-            <button type="submit" class="add-to-cart-btn {% if product_type_lower == 'album' %}bg-white text-black hover:bg-grey-20{% else %}bg-black text-white hover:bg-grey-60{% endif %} font-bold px-16 rounded-md text-11 uppercase tracking-wide transition-colors flex justify-center items-center gap-8" style="width:{{ section.settings.button_width | default: 80 }}%;margin:0 auto;padding-top:{{ section.settings.button_padding_y | default: 10 }}px;padding-bottom:{{ section.settings.button_padding_y | default: 10 }}px;" {% unless product.available %}disabled{% endunless %}>
-              <span class="add-to-cart-text">
-                {% if product.available %}
-                  Ajouter au panier - {{ product.price | money_without_trailing_zeros }}
-                {% else %}
-                  En rupture de stock
-                {% endif %}
-              </span>
-            </button>
-          </form>
-        </div>
-        
       </div>
+      
+      <!-- Footer / Form -->
+      <div class="shrink-0 w-full relative z-10">
+        {% if product.variants.size > 1 %}
+          <div class="product-options-wrapper mb-16 flex flex-col gap-4 w-full">
+            {% for option in product.options_with_values %}
+              {% if option.name != 'Title' %}
+                <div class="flex h-28 items-center justify-between">
+                  <label for="Option-{{ product.id }}-{{ forloop.index0 }}" class="pt-1 pr-14 font-bold text-11 {% if product_type_lower == 'album' %}text-white/60{% else %}text-grey-60{% endif %} uppercase">
+                    {{ option.name }}
+                  </label>
+                  <select id="Option-{{ product.id }}-{{ forloop.index0 }}" class="variant-select bg-transparent {% if product_type_lower == 'album' %}text-white border-white/20{% else %}text-grey-60 border-black/10{% endif %} rounded px-10 py-2 font-bold text-11 uppercase cursor-pointer outline-none focus:border-black" data-index="{{ forloop.index0 }}">
+                  {% for value in option.values %}
+                    <option value="{{ value | escape }}" class="{% if product_type_lower == 'album' %}bg-black text-white{% else %}bg-white text-black{% endif %}" {% if option.selected_value == value %}selected{% endif %}>
+                      {{ value }}
+                    </option>
+                  {% endfor %}
+                  </select>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+        
+        <script type="application/json" class="product-variants-json">
+          {{ product.variants | json }}
+        </script>
+
+        <form method="post" action="/cart/add" class="add-to-cart-form w-full" data-shopify-mini-cart-form="true">
+          <input type="hidden" name="id" value="{{ product.first_available_variant.id }}">
+          <button type="submit" class="add-to-cart-btn {% if product_type_lower == 'album' %}bg-white text-black hover:bg-grey-20{% else %}bg-black text-white hover:bg-grey-60{% endif %} font-bold rounded-xs text-11 uppercase tracking-wide transition-colors flex justify-center items-center gap-8" style="width: {{ section.settings.button_width | default: 100 }}%; margin-top: {{ section.settings.button_margin_top | default: 16 }}px; margin-inline: auto; padding-top: {{ section.settings.button_padding_y | default: 12 }}px; padding-bottom: {{ section.settings.button_padding_y | default: 12 }}px;" {% unless product.available %}disabled{% endunless %}>
+            <span class="add-to-cart-text">
+              {% if product.available %}
+                Ajouter au panier - {{ product.price | money_without_trailing_zeros }}
+              {% else %}
+                En rupture de stock
+              {% endif %}
+            </span>
+          </button>
+        </form>
+      </div>
+
     </div>
   </div>
 </div>
@@ -197,50 +182,71 @@
     },
     {
       "type": "header",
-      "content": "── Modal Container ──"
+      "content": "── Modal Positioning & Sizing ──"
     },
     {
       "type": "range",
-      "id": "modal_padding_top",
-      "label": "Modal top spacing",
+      "id": "modal_max_width",
+      "label": "Desktop Modal Max Width",
+      "min": 300,
+      "max": 800,
+      "step": 10,
+      "default": 500,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "modal_max_height",
+      "label": "Desktop Modal Max Height",
+      "min": 50,
+      "max": 100,
+      "step": 1,
+      "default": 85,
+      "unit": "vh"
+    },
+    {
+      "type": "select",
+      "id": "modal_vertical_alignment",
+      "label": "Desktop Vertical Alignment",
+      "options": [
+        { "value": "center", "label": "Center" },
+        { "value": "start", "label": "Top" },
+        { "value": "end", "label": "Bottom" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "range",
+      "id": "modal_margin_top",
+      "label": "Modal Margin Top",
       "min": 0,
-      "max": 60,
+      "max": 100,
       "step": 2,
       "default": 0,
       "unit": "px"
     },
     {
-      "type": "range",
-      "id": "modal_padding_bottom",
-      "label": "Modal bottom spacing (iPod nav)",
-      "min": 60,
-      "max": 160,
-      "step": 5,
-      "default": 100,
-      "unit": "px"
-    },
-    {
       "type": "header",
-      "content": "── Card Content ──"
+      "content": "── Card Internal Padding ──"
     },
     {
       "type": "range",
       "id": "card_padding",
-      "label": "Card inner padding",
+      "label": "Card General Padding",
       "min": 8,
       "max": 40,
       "step": 2,
-      "default": 16,
+      "default": 20,
       "unit": "px"
     },
     {
       "type": "range",
-      "id": "card_padding_top",
-      "label": "Card top padding",
-      "min": 4,
-      "max": 40,
-      "step": 2,
-      "default": 12,
+      "id": "card_padding_bottom",
+      "label": "Card Bottom Padding",
+      "min": 20,
+      "max": 160,
+      "step": 5,
+      "default": 105,
       "unit": "px"
     },
     {
@@ -249,34 +255,43 @@
     },
     {
       "type": "range",
-      "id": "image_height",
-      "label": "Image height",
+      "id": "image_min_height",
+      "label": "Image Container Min Height",
       "min": 100,
-      "max": 500,
+      "max": 400,
       "step": 10,
       "default": 200,
       "unit": "px"
     },
     {
       "type": "range",
-      "id": "image_margin_top",
-      "label": "Image top margin",
+      "id": "image_margin_bottom",
+      "label": "Image Margin Bottom",
       "min": 0,
       "max": 60,
       "step": 2,
-      "default": 4,
+      "default": 20,
       "unit": "px"
     },
     {
       "type": "select",
       "id": "image_fit",
-      "label": "Image fit mode",
+      "label": "Image Fit Mode",
       "options": [
         { "value": "contain", "label": "Contain (full image)" },
-        { "value": "cover", "label": "Cover (fill & crop)" },
-        { "value": "scale-down", "label": "Scale down" }
+        { "value": "cover", "label": "Cover (fill & crop)" }
       ],
       "default": "contain"
+    },
+    {
+      "type": "range",
+      "id": "image_inner_padding",
+      "label": "Image Inner Padding",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "default": 20,
+      "unit": "px"
     },
     {
       "type": "header",
@@ -284,22 +299,32 @@
     },
     {
       "type": "range",
+      "id": "button_margin_top",
+      "label": "Button Margin Top",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "default": 16,
+      "unit": "px"
+    },
+    {
+      "type": "range",
       "id": "button_width",
-      "label": "Button width",
+      "label": "Button Width",
       "min": 50,
       "max": 100,
       "step": 5,
-      "default": 80,
+      "default": 100,
       "unit": "%"
     },
     {
       "type": "range",
       "id": "button_padding_y",
-      "label": "Button vertical padding",
+      "label": "Button Vertical Padding",
       "min": 6,
-      "max": 20,
+      "max": 30,
       "step": 1,
-      "default": 10,
+      "default": 12,
       "unit": "px"
     }
   ],
