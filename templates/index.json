@@ -15,7 +15,7 @@
         "collection": "feaured-drop",
         "modal_max_width": 500,
         "modal_max_height": 100,
-        "modal_vertical_alignment": "end",
+        "modal_vertical_alignment": "center",
         "modal_margin_top": 0,
         "card_padding": 20,
         "card_padding_bottom": 80,
