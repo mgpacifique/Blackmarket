@@ -21,7 +21,7 @@
         "card_padding_bottom": 105,
         "image_min_height": 200,
         "image_margin_bottom": 20,
-        "image_fit": "contain",
+        "image_fit": "cover",
         "image_inner_padding": 20,
         "button_margin_top": 4,
         "button_width": 100,
