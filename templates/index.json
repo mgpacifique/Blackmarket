@@ -15,7 +15,7 @@
         "collection": "feaured-drop",
         "modal_max_width": 500,
         "modal_max_height": 100,
-        "modal_vertical_alignment": "start",
+        "modal_vertical_alignment": "end",
         "modal_margin_top": 0,
         "card_padding": 20,
         "card_padding_bottom": 80,
@@ -31,10 +31,15 @@
     "1780483763c82b18bf": {
       "type": "_blocks",
       "settings": {}
+    },
+    "17810323471380e8e9": {
+      "type": "_blocks",
+      "settings": {}
     }
   },
   "order": [
     "carousel_homepage",
-    "1780483763c82b18bf"
+    "1780483763c82b18bf",
+    "17810323471380e8e9"
   ]
 }
