@@ -14,16 +14,16 @@
       "settings": {
         "collection": "feaured-drop",
         "modal_max_width": 500,
-        "modal_max_height": 85,
+        "modal_max_height": 100,
         "modal_vertical_alignment": "center",
         "modal_margin_top": 0,
         "card_padding": 20,
-        "card_padding_bottom": 105,
+        "card_padding_bottom": 80,
         "image_min_height": 200,
         "image_margin_bottom": 20,
         "image_fit": "cover",
         "image_inner_padding": 20,
-        "button_margin_top": 4,
+        "button_margin_top": 16,
         "button_width": 100,
         "button_padding_y": 12
       }
