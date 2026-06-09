@@ -1,6 +1,928 @@
+{% doc %}
+  @prompt
+    Rebuild and improve the iPod Navigation section for a Shopify theme. The section displays a product modal with an iPod-style click wheel navigation interface. The improvements needed are:
+    
+    1. Navigation buttons: The iPod-style click wheel buttons (previous, center/close, next) should be properly centered, clearly visible, well-spaced, and aligned consistently.
+    2. Info and Add to Cart buttons: These should be placed cleanly below the product image, fully visible, responsive, and not overlapping any other elements. They should be clearly styled and accessible.
+    3. Product image: Should have sufficient size/height to be clearly visible within the modal — not too small or cropped.
+    4. Overall modal layout: Clean, centered, responsive layout with proper padding and spacing between all elements (title, tag, image, buttons).
+    
+    The section should maintain the existing dark/sleek aesthetic (dark modal background, rounded corners, white text) consistent with a luxury streetwear/watch brand store called BLACKMARKET.
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-ipod-nav-{{ ai_gen_id }} {
+    display: block;
+    width: 100%;
+  }
+
+  .ai-ipod-trigger-{{ ai_gen_id }} {
+    position: fixed;
+    bottom: {{ block.settings.trigger_bottom_position }}px;
+    right: {{ block.settings.trigger_right_position }}px;
+    z-index: 999;
+    background-color: {{ block.settings.trigger_bg_color }};
+    color: {{ block.settings.trigger_text_color }};
+    border: none;
+    border-radius: 50%;
+    width: {{ block.settings.trigger_size }}px;
+    height: {{ block.settings.trigger_size }}px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .ai-ipod-trigger-{{ ai_gen_id }}:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  }
+
+  .ai-ipod-trigger-{{ ai_gen_id }} svg {
+    width: 60%;
+    height: 60%;
+  }
+
+  .ai-ipod-overlay-{{ ai_gen_id }} {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .ai-ipod-overlay-{{ ai_gen_id }}.active {
+    display: flex;
+    opacity: 1;
+  }
+
+  .ai-ipod-modal-{{ ai_gen_id }} {
+    background-color: {{ block.settings.modal_bg_color }};
+    border-radius: {{ block.settings.modal_border_radius }}px;
+    width: 90%;
+    max-width: {{ block.settings.modal_max_width }}px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: {{ block.settings.modal_padding }}px;
+    position: relative;
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  }
+
+  .ai-ipod-overlay-{{ ai_gen_id }}.active .ai-ipod-modal-{{ ai_gen_id }} {
+    transform: scale(1);
+  }
+
+  .ai-ipod-header-{{ ai_gen_id }} {
+    text-align: center;
+    margin-bottom: {{ block.settings.section_spacing }}px;
+  }
+
+  .ai-ipod-tag-{{ ai_gen_id }} {
+    display: inline-block;
+    background-color: {{ block.settings.tag_bg_color }};
+    color: {{ block.settings.tag_text_color }};
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: {{ block.settings.tag_font_size }}px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .ai-ipod-title-{{ ai_gen_id }} {
+    color: {{ block.settings.title_color }};
+    font-size: {{ block.settings.title_font_size }}px;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .ai-ipod-content-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: {{ block.settings.section_spacing }}px;
+    align-items: center;
+  }
+
+  .ai-ipod-image-wrapper-{{ ai_gen_id }} {
+    width: 100%;
+    max-width: {{ block.settings.image_max_width }}px;
+    margin: 0 auto;
+  }
+
+  .ai-ipod-image-{{ ai_gen_id }} {
+    width: 100%;
+    height: auto;
+    min-height: {{ block.settings.image_min_height }}px;
+    object-fit: cover;
+    border-radius: {{ block.settings.image_border_radius }}px;
+    display: block;
+  }
+
+  .ai-ipod-image-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    min-height: {{ block.settings.image_min_height }}px;
+    background-color: #2a2a2a;
+    border-radius: {{ block.settings.image_border_radius }}px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .ai-ipod-image-placeholder-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    max-width: 200px;
+    max-height: 200px;
+    opacity: 0.3;
+  }
+
+  .ai-ipod-action-buttons-{{ ai_gen_id }} {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    max-width: {{ block.settings.image_max_width }}px;
+    margin: 0 auto;
+  }
+
+  .ai-ipod-action-btn-{{ ai_gen_id }} {
+    flex: 1;
+    padding: 14px 20px;
+    background-color: {{ block.settings.action_btn_bg_color }};
+    color: {{ block.settings.action_btn_text_color }};
+    border: 2px solid {{ block.settings.action_btn_border_color }};
+    border-radius: {{ block.settings.action_btn_border_radius }}px;
+    font-size: {{ block.settings.action_btn_font_size }}px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .ai-ipod-action-btn-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.action_btn_hover_bg_color }};
+    color: {{ block.settings.action_btn_hover_text_color }};
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .ai-ipod-wheel-container-{{ ai_gen_id }} {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: {{ block.settings.section_spacing }}px;
+  }
+
+  .ai-ipod-wheel-{{ ai_gen_id }} {
+    position: relative;
+    width: {{ block.settings.wheel_size }}px;
+    height: {{ block.settings.wheel_size }}px;
+    border-radius: 50%;
+    background: {{ block.settings.wheel_bg_color }};
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), inset 0 2px 8px rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-ipod-wheel-center-{{ ai_gen_id }} {
+    position: absolute;
+    width: {{ block.settings.center_button_size }}px;
+    height: {{ block.settings.center_button_size }}px;
+    border-radius: 50%;
+    background-color: {{ block.settings.center_btn_bg_color }};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    z-index: 2;
+  }
+
+  .ai-ipod-wheel-center-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.center_btn_hover_bg_color }};
+    transform: scale(1.05);
+  }
+
+  .ai-ipod-wheel-center-{{ ai_gen_id }} svg {
+    width: 50%;
+    height: 50%;
+    color: {{ block.settings.center_btn_icon_color }};
+  }
+
+  .ai-ipod-nav-btn-{{ ai_gen_id }} {
+    position: absolute;
+    width: {{ block.settings.nav_button_size }}px;
+    height: {{ block.settings.nav_button_size }}px;
+    border-radius: 50%;
+    background-color: {{ block.settings.nav_btn_bg_color }};
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+
+  .ai-ipod-nav-btn-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.nav_btn_hover_bg_color }};
+    transform: scale(1.1);
+  }
+
+  .ai-ipod-nav-btn-{{ ai_gen_id }} svg {
+    width: 60%;
+    height: 60%;
+    color: {{ block.settings.nav_btn_icon_color }};
+  }
+
+  .ai-ipod-nav-btn-{{ ai_gen_id }}.prev {
+    top: 50%;
+    left: {{ block.settings.nav_button_offset }}px;
+    transform: translateY(-50%);
+  }
+
+  .ai-ipod-nav-btn-{{ ai_gen_id }}.next {
+    top: 50%;
+    right: {{ block.settings.nav_button_offset }}px;
+    transform: translateY(-50%);
+  }
+
+  .ai-ipod-product-info-{{ ai_gen_id }} {
+    text-align: center;
+    color: {{ block.settings.info_text_color }};
+    margin-top: 16px;
+  }
+
+  .ai-ipod-product-price-{{ ai_gen_id }} {
+    font-size: {{ block.settings.price_font_size }}px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .ai-ipod-product-desc-{{ ai_gen_id }} {
+    font-size: {{ block.settings.desc_font_size }}px;
+    line-height: 1.5;
+    opacity: 0.9;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-ipod-modal-{{ ai_gen_id }} {
+      padding: 20px;
+    }
+
+    .ai-ipod-wheel-{{ ai_gen_id }} {
+      width: {{ block.settings.wheel_size | times: 0.8 }}px;
+      height: {{ block.settings.wheel_size | times: 0.8 }}px;
+    }
+
+    .ai-ipod-wheel-center-{{ ai_gen_id }} {
+      width: {{ block.settings.center_button_size | times: 0.8 }}px;
+      height: {{ block.settings.center_button_size | times: 0.8 }}px;
+    }
+
+    .ai-ipod-nav-btn-{{ ai_gen_id }} {
+      width: {{ block.settings.nav_button_size | times: 0.8 }}px;
+      height: {{ block.settings.nav_button_size | times: 0.8 }}px;
+    }
+
+    .ai-ipod-title-{{ ai_gen_id }} {
+      font-size: {{ block.settings.title_font_size | times: 0.8 }}px;
+    }
+
+    .ai-ipod-action-buttons-{{ ai_gen_id }} {
+      flex-direction: column;
+    }
+  }
+{% endstyle %}
+
+<ipod-navigation-{{ ai_gen_id }} class="ai-ipod-nav-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <button class="ai-ipod-trigger-{{ ai_gen_id }}" aria-label="Open iPod navigation">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"></circle>
+      <circle cx="12" cy="12" r="3"></circle>
+    </svg>
+  </button>
+
+  <div class="ai-ipod-overlay-{{ ai_gen_id }}">
+    <div class="ai-ipod-modal-{{ ai_gen_id }}">
+      <div class="ai-ipod-header-{{ ai_gen_id }}">
+        {% if block.settings.product_tag != blank %}
+          <span class="ai-ipod-tag-{{ ai_gen_id }}">{{ block.settings.product_tag }}</span>
+        {% endif %}
+        <h2 class="ai-ipod-title-{{ ai_gen_id }}">
+          {% if block.settings.featured_product %}
+            {{ block.settings.featured_product.title }}
+          {% else %}
+            {{ block.settings.modal_title }}
+          {% endif %}
+        </h2>
+      </div>
+
+      <div class="ai-ipod-content-{{ ai_gen_id }}">
+        <div class="ai-ipod-image-wrapper-{{ ai_gen_id }}">
+          {% if block.settings.featured_product and block.settings.featured_product.featured_image %}
+            <img
+              src="{{ block.settings.featured_product.featured_image | image_url: width: 800 }}"
+              alt="{{ block.settings.featured_product.featured_image.alt | escape }}"
+              class="ai-ipod-image-{{ ai_gen_id }}"
+              loading="lazy"
+              width="800"
+              height="800"
+            >
+          {% elsif block.settings.product_image %}
+            <img
+              src="{{ block.settings.product_image | image_url: width: 800 }}"
+              alt="{{ block.settings.product_image.alt | escape }}"
+              class="ai-ipod-image-{{ ai_gen_id }}"
+              loading="lazy"
+              width="800"
+              height="800"
+            >
+          {% else %}
+            <div class="ai-ipod-image-placeholder-{{ ai_gen_id }}">
+              {{ 'product-1' | placeholder_svg_tag }}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="ai-ipod-action-buttons-{{ ai_gen_id }}">
+          <button class="ai-ipod-action-btn-{{ ai_gen_id }}" data-action="info">
+            {{ block.settings.info_button_text }}
+          </button>
+          <button class="ai-ipod-action-btn-{{ ai_gen_id }}" data-action="cart">
+            {{ block.settings.cart_button_text }}
+          </button>
+        </div>
+
+        {% if block.settings.show_product_info %}
+          <div class="ai-ipod-product-info-{{ ai_gen_id }}">
+            {% if block.settings.featured_product %}
+              <div class="ai-ipod-product-price-{{ ai_gen_id }}">
+                {{ block.settings.featured_product.price | money }}
+              </div>
+              {% if block.settings.featured_product.description != blank %}
+                <div class="ai-ipod-product-desc-{{ ai_gen_id }}">
+                  {{ block.settings.featured_product.description | strip_html | truncate: 150 }}
+                </div>
+              {% endif %}
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="ai-ipod-wheel-container-{{ ai_gen_id }}">
+        <div class="ai-ipod-wheel-{{ ai_gen_id }}">
+          <button class="ai-ipod-nav-btn-{{ ai_gen_id }} prev" aria-label="Previous product">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+
+          <button class="ai-ipod-wheel-center-{{ ai_gen_id }}" aria-label="Close modal">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+
+          <button class="ai-ipod-nav-btn-{{ ai_gen_id }} next" aria-label="Next product">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ipod-navigation-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class IpodNavigation{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.trigger = this.querySelector('.ai-ipod-trigger-{{ ai_gen_id }}');
+        this.overlay = this.querySelector('.ai-ipod-overlay-{{ ai_gen_id }}');
+        this.centerBtn = this.querySelector('.ai-ipod-wheel-center-{{ ai_gen_id }}');
+        this.prevBtn = this.querySelector('.ai-ipod-nav-btn-{{ ai_gen_id }}.prev');
+        this.nextBtn = this.querySelector('.ai-ipod-nav-btn-{{ ai_gen_id }}.next');
+        this.infoBtn = this.querySelector('[data-action="info"]');
+        this.cartBtn = this.querySelector('[data-action="cart"]');
+      }
+
+      connectedCallback() {
+        this.setupEventListeners();
+      }
+
+      setupEventListeners() {
+        this.trigger.addEventListener('click', () => this.openModal());
+        this.centerBtn.addEventListener('click', () => this.closeModal());
+        this.overlay.addEventListener('click', (e) => {
+          if (e.target === this.overlay) {
+            this.closeModal();
+          }
+        });
+
+        this.prevBtn.addEventListener('click', () => this.navigateProduct('prev'));
+        this.nextBtn.addEventListener('click', () => this.navigateProduct('next'));
+
+        this.infoBtn.addEventListener('click', () => this.handleInfo());
+        this.cartBtn.addEventListener('click', () => this.handleCart());
+
+        document.addEventListener('keydown', (e) => {
+          if (this.overlay.classList.contains('active')) {
+            if (e.key === 'Escape') {
+              this.closeModal();
+            } else if (e.key === 'ArrowLeft') {
+              this.navigateProduct('prev');
+            } else if (e.key === 'ArrowRight') {
+              this.navigateProduct('next');
+            }
+          }
+        });
+      }
+
+      openModal() {
+        this.overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+
+      closeModal() {
+        this.overlay.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+
+      navigateProduct(direction) {
+        console.log('Navigate:', direction);
+      }
+
+      handleInfo() {
+        {% if block.settings.featured_product %}
+          window.location.href = '{{ block.settings.featured_product.url }}';
+        {% elsif block.settings.info_button_link %}
+          window.location.href = '{{ block.settings.info_button_link }}';
+        {% endif %}
+      }
+
+      handleCart() {
+        {% if block.settings.featured_product %}
+          fetch('/cart/add.js', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              id: {{ block.settings.featured_product.selected_or_first_available_variant.id }},
+              quantity: 1
+            })
+          })
+          .then(response => response.json())
+          .then(data => {
+            window.location.href = '/cart';
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
+        {% endif %}
+      }
+    }
+
+    customElements.define('ipod-navigation-{{ ai_gen_id }}', IpodNavigation{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "iPod navigation",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "modal_title",
+      "label": "Modal title",
+      "default": "Featured Product"
+    },
+    {
+      "type": "text",
+      "id": "product_tag",
+      "label": "Product tag"
+    },
+    {
+      "type": "product",
+      "id": "featured_product",
+      "label": "Featured product"
+    },
+    {
+      "type": "image_picker",
+      "id": "product_image",
+      "label": "Product image"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_product_info",
+      "label": "Show product info",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Action buttons"
+    },
+    {
+      "type": "text",
+      "id": "info_button_text",
+      "label": "Info button text",
+      "default": "View Details"
+    },
+    {
+      "type": "url",
+      "id": "info_button_link",
+      "label": "Info button link"
+    },
+    {
+      "type": "text",
+      "id": "cart_button_text",
+      "label": "Cart button text",
+      "default": "Add to Cart"
+    },
+    {
+      "type": "header",
+      "content": "Trigger button"
+    },
+    {
+      "type": "range",
+      "id": "trigger_size",
+      "label": "Trigger size",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 70
+    },
+    {
+      "type": "range",
+      "id": "trigger_bottom_position",
+      "label": "Bottom position",
+      "min": 10,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "trigger_right_position",
+      "label": "Right position",
+      "min": 10,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 30
+    },
+    {
+      "type": "color",
+      "id": "trigger_bg_color",
+      "label": "Background color",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "trigger_text_color",
+      "label": "Icon color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Modal style"
+    },
+    {
+      "type": "range",
+      "id": "modal_max_width",
+      "label": "Max width",
+      "min": 400,
+      "max": 800,
+      "step": 20,
+      "unit": "px",
+      "default": 600
+    },
+    {
+      "type": "range",
+      "id": "modal_padding",
+      "label": "Padding",
+      "min": 20,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "modal_border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "color",
+      "id": "modal_bg_color",
+      "label": "Background color",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "range",
+      "id": "section_spacing",
+      "label": "Section spacing",
+      "min": 16,
+      "max": 48,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "header",
+      "content": "Tag style"
+    },
+    {
+      "type": "range",
+      "id": "tag_font_size",
+      "label": "Font size",
+      "min": 10,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "color",
+      "id": "tag_bg_color",
+      "label": "Background color",
+      "default": "#ffc703"
+    },
+    {
+      "type": "color",
+      "id": "tag_text_color",
+      "label": "Text color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Title style"
+    },
+    {
+      "type": "range",
+      "id": "title_font_size",
+      "label": "Font size",
+      "min": 20,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Image style"
+    },
+    {
+      "type": "range",
+      "id": "image_max_width",
+      "label": "Max width",
+      "min": 300,
+      "max": 600,
+      "step": 20,
+      "unit": "px",
+      "default": 500
+    },
+    {
+      "type": "range",
+      "id": "image_min_height",
+      "label": "Min height",
+      "min": 200,
+      "max": 500,
+      "step": 20,
+      "unit": "px",
+      "default": 400
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Action buttons style"
+    },
+    {
+      "type": "range",
+      "id": "action_btn_font_size",
+      "label": "Font size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "action_btn_border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "color",
+      "id": "action_btn_bg_color",
+      "label": "Background color",
+      "default": "#2a2a2a"
+    },
+    {
+      "type": "color",
+      "id": "action_btn_text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "action_btn_border_color",
+      "label": "Border color",
+      "default": "#ffc703"
+    },
+    {
+      "type": "color",
+      "id": "action_btn_hover_bg_color",
+      "label": "Hover background color",
+      "default": "#ffc703"
+    },
+    {
+      "type": "color",
+      "id": "action_btn_hover_text_color",
+      "label": "Hover text color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "iPod wheel"
+    },
+    {
+      "type": "range",
+      "id": "wheel_size",
+      "label": "Wheel size",
+      "min": 150,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "default": 220
+    },
+    {
+      "type": "color",
+      "id": "wheel_bg_color",
+      "label": "Wheel background",
+      "default": "#2b2b2b"
+    },
+    {
+      "type": "header",
+      "content": "Center button"
+    },
+    {
+      "type": "range",
+      "id": "center_button_size",
+      "label": "Size",
+      "min": 60,
+      "max": 120,
+      "step": 5,
+      "unit": "px",
+      "default": 90
+    },
+    {
+      "type": "color",
+      "id": "center_btn_bg_color",
+      "label": "Background color",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "center_btn_hover_bg_color",
+      "label": "Hover background color",
+      "default": "#ffc703"
+    },
+    {
+      "type": "color",
+      "id": "center_btn_icon_color",
+      "label": "Icon color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Navigation buttons"
+    },
+    {
+      "type": "range",
+      "id": "nav_button_size",
+      "label": "Size",
+      "min": 40,
+      "max": 80,
+      "step": 5,
+      "unit": "px",
+      "default": 55
+    },
+    {
+      "type": "range",
+      "id": "nav_button_offset",
+      "label": "Offset from edge",
+      "min": 10,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "color",
+      "id": "nav_btn_bg_color",
+      "label": "Background color",
+      "default": "#383838"
+    },
+    {
+      "type": "color",
+      "id": "nav_btn_hover_bg_color",
+      "label": "Hover background color",
+      "default": "#ffc703"
+    },
+    {
+      "type": "color",
+      "id": "nav_btn_icon_color",
+      "label": "Icon color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Product info"
+    },
+    {
+      "type": "range",
+      "id": "price_font_size",
+      "label": "Price font size",
+      "min": 16,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "desc_font_size",
+      "label": "Description font size",
+      "min": 12,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "color",
+      "id": "info_text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    }
+  ],
+  "presets": [
+    {
+      "name": "iPod navigation"
+    }
+  ]
+}
 {% endschema %}
