@@ -22,7 +22,7 @@
         "image_min_height": 200,
         "image_margin_bottom": 20,
         "image_fit": "contain",
-        "image_inner_padding": 20,
+        "image_inner_padding": 38,
         "button_margin_top": 16,
         "button_width": 100,
         "button_padding_y": 12
