@@ -24,7 +24,7 @@
         "image_fit": "contain",
         "image_inner_padding": 0,
         "button_margin_top": 0,
-        "button_width": 70,
+        "button_width": 50,
         "button_padding_y": 6
       }
     },
