@@ -45,7 +45,9 @@
       {{ content_for_layout }}
     </main>
 
-    {% section 'ipod-navigation' %}
+    {% unless template.name == 'product' %}
+      {% section 'ipod-navigation' %}
+    {% endunless %}
 
     {% render 'cart-drawer' %}
 
