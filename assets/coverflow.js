@@ -198,11 +198,10 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       const activeIdx = getNormalizedIndex(p.current);
       if (activeIdx === index) {
-        // Center card click opens details modal
+        // Center card click navigates to product page
         const url = item.dataset.url;
-        const handle = url ? url.split('/').pop() : '';
-        if (handle) {
-          window.location.hash = '#' + handle;
+        if (url) {
+          window.location.href = url;
         }
       } else {
         // Side card click centers it
@@ -245,17 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }));
 
     // If modal is active, update the hash to the new centered item's handle
-    const hasHash = window.location.hash && window.location.hash.length > 1;
-    if (hasHash) {
-      const activeItem = items[targetNormalized];
-      if (activeItem) {
-        const url = activeItem.dataset.url;
-        const targetHandle = url ? url.split('/').pop() : '';
-        if (targetHandle && window.location.hash !== '#' + targetHandle) {
-          window.location.hash = '#' + targetHandle;
-        }
-      }
-    }
+    const hasHash = false; // Modals are removed, no hash update needed
 
     gsap.to(p, {
       current: targetIndex,
@@ -265,15 +254,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Center navigation action (pressing center key on wheel selects and opens modal)
+  // Center navigation action (pressing center key on wheel selects and opens product page)
   window.addEventListener('ipodCenterPressed', () => {
     const activeIdx = getNormalizedIndex(p.current);
     const activeItem = items[activeIdx];
     if (activeItem) {
       const url = activeItem.dataset.url;
-      const handle = url ? url.split('/').pop() : '';
-      if (handle) {
-        window.location.hash = '#' + handle;
+      if (url) {
+        window.location.href = url;
       }
     }
   });

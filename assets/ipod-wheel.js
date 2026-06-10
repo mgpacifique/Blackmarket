@@ -200,11 +200,17 @@ document.addEventListener('DOMContentLoaded', () => {
     leftBtn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      currentIndex--;
       playClickSound();
-      window.dispatchEvent(new CustomEvent('ipodIndexChanged', {
-        detail: { index: currentIndex }
-      }));
+      
+      const isProductPage = document.querySelector('.am-product-page') !== null;
+      if (isProductPage) {
+        window.dispatchEvent(new CustomEvent('ipodLeftClick'));
+      } else {
+        currentIndex--;
+        window.dispatchEvent(new CustomEvent('ipodIndexChanged', {
+          detail: { index: currentIndex }
+        }));
+      }
     });
   }
 
@@ -212,11 +218,17 @@ document.addEventListener('DOMContentLoaded', () => {
     rightBtn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      currentIndex++;
       playClickSound();
-      window.dispatchEvent(new CustomEvent('ipodIndexChanged', {
-        detail: { index: currentIndex }
-      }));
+      
+      const isProductPage = document.querySelector('.am-product-page') !== null;
+      if (isProductPage) {
+        window.dispatchEvent(new CustomEvent('ipodRightClick'));
+      } else {
+        currentIndex++;
+        window.dispatchEvent(new CustomEvent('ipodIndexChanged', {
+          detail: { index: currentIndex }
+        }));
+      }
     });
   }
 
@@ -248,7 +260,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const updateIpodState = () => {
     const hasHash = window.location.hash && window.location.hash.length > 1;
     const isCartOpen = document.body.classList.contains('cart-drawer-open');
-    const shouldMinimize = hasHash || isCartOpen;
+    const isProductPage = document.querySelector('.am-product-page') !== null;
+    const shouldMinimize = hasHash || isCartOpen || isProductPage;
     
     let tl = gsap.timeline({defaults: {duration: 1.0, ease: 'expo.inOut', overwrite: 'auto'}});
     
@@ -308,7 +321,20 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       e.stopPropagation();
       document.body.classList.remove('cart-drawer-open');
-      window.location.hash = '#';
+      const isProductPage = document.querySelector('.am-product-page') !== null;
+      if (isProductPage) {
+        // Run exit animation for product page then navigate home
+        const container = document.getElementById('am-container');
+        if (container && window.gsap) {
+          gsap.to(container, { opacity: 0, scale: 0.95, duration: 0.4, ease: 'power2.inOut', onComplete: () => {
+            window.location.href = '/';
+          }});
+        } else {
+          window.location.href = '/';
+        }
+      } else {
+        window.location.hash = '#';
+      }
       playClickSound();
     });
   }

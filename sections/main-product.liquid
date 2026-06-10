@@ -1,515 +1,309 @@
 {{ 'section-main-product.css' | asset_url | stylesheet_tag }}
 
-<div class="custom-pdp">
-  <div class="custom-pdp-left">
-    <div class="back-link-wrapper">
-      <a href="javascript:history.back()" class="pdp-back-link">← BACK</a>
-    </div>
-    <div class="pdp-image-wrapper">
-      {%- if product.featured_image -%}
-        <img 
-          src="{{ product.featured_image | image_url: width: 2000 }}" 
-          alt="{{ product.title | escape }}" 
-          class="pdp-main-image float-image" 
-          width="{{ product.featured_image.width }}" 
-          height="{{ product.featured_image.height }}" />
-      {%- endif -%}
-    </div>
-    
-    {%- if product.media.size > 1 -%}
-      <div class="pdp-thumbnails">
-        {%- for media in product.media offset: 1 -%}
-          <img src="{{ media | image_url: width: 150 }}" class="pdp-thumb" alt="{{ media.alt | escape }}" onclick="document.querySelector('.pdp-main-image').src='{{ media | image_url: width: 2000 }}'">
-        {%- endfor -%}
-      </div>
-    {%- endif -%}
-  </div>
-  
-  <div class="custom-pdp-right">
-    <h1 class="pdp-title">{{ product.title }}</h1>
-    <div class="pdp-price">{{ product.price | money }}</div>
-    
-    {%- form 'product', product, class: 'product-form pdp-form' -%}
-      <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
-      
-      {%- unless product.has_only_default_variant -%}
-        <div class="pdp-variants">
-          {%- for option in product.options_with_values -%}
-            <div class="pdp-option">
-              <label>{{ option.name }}</label>
-              <div class="pdp-option-values">
-                {%- for value in option.values -%}
-                  <label class="pdp-swatch">
-                    <input type="radio" name="options[{{ option.name | escape }}]" value="{{ value | escape }}" {% if option.selected_value == value %}checked{% endif %}>
-                    <span>{{ value }}</span>
-                  </label>
-                {%- endfor -%}
-              </div>
-            </div>
-          {%- endfor -%}
-        </div>
-      {%- endunless -%}
-      
-      <div class="pdp-quantity">
-        <label>Quantity</label>
-        <div class="qty-stepper">
-          <button type="button" class="qty-minus" onclick="this.nextElementSibling.stepDown()">-</button>
-          <input type="number" name="quantity" value="1" min="1" class="qty-input">
-          <button type="button" class="qty-plus" onclick="this.previousElementSibling.stepUp()">+</button>
-        </div>
-      </div>
-      
-      <div class="pdp-action">
-        {%- if product.available -%}
-          <button type="submit" class="btn-add-to-cart">ADD TO CART</button>
-        {%- else -%}
-          <button type="button" class="btn-add-to-cart disabled" disabled>SOLD OUT</button>
+
+<div class="simple-product-page">
+  <div class="am-background"></div>
+
+  <div class="simple-container">
+    <!-- Left Column: Images -->
+    <div class="simple-left-col">
+      <div class="simple-main-image-wrapper">
+        {%- if product.featured_image -%}
+          <img src="{{ product.featured_image | image_url: width: 1200 }}" alt="{{ product.title | escape }}" class="simple-main-image" id="simple-main-image" loading="eager">
         {%- endif -%}
       </div>
-    {%- endform -%}
-    
-    <div class="pdp-description-accordion">
-      <details>
-        <summary>DESCRIPTION</summary>
-        <div class="accordion-content">
-          {{ product.description }}
+      
+      {%- if product.media.size > 1 -%}
+        <div class="simple-thumbnails">
+          {%- for media in product.media -%}
+            <button type="button" class="simple-thumb-btn {% if forloop.first %}is-active{% endif %}" data-image="{{ media | image_url: width: 1200 }}">
+              <img src="{{ media | image_url: width: 150 }}" alt="{{ media.alt | escape }}">
+            </button>
+          {%- endfor -%}
         </div>
-      </details>
+      {%- endif -%}
+    </div>
+
+    <!-- Right Column: Info -->
+    <div class="simple-right-col">
+      <h1 class="simple-title">{{ product.title }}</h1>
+      <p class="simple-price">{{ product.price | money }}</p>
+
+      {%- form 'product', product, class: 'simple-product-form' -%}
+        <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+        <input type="hidden" name="quantity" value="1">
+        
+        {%- unless product.has_only_default_variant -%}
+          <div class="simple-variants">
+            {%- for option in product.options_with_values -%}
+              <div class="simple-option">
+                <label class="simple-option-label">{{ option.name }}</label>
+                <div class="simple-option-values">
+                  {%- for value in option.values -%}
+                    <label class="simple-swatch">
+                      <input type="radio" name="options[{{ option.name | escape }}]" value="{{ value | escape }}" {% if option.selected_value == value %}checked{% endif %}>
+                      <span class="simple-swatch-box">{{ value }}</span>
+                    </label>
+                  {%- endfor -%}
+                </div>
+              </div>
+            {%- endfor -%}
+          </div>
+        {%- endunless -%}
+
+        <button type="submit" class="simple-add-to-cart {% unless product.available %}disabled{% endunless %}" {% unless product.available %}disabled{% endunless %}>
+          {% if product.available %}ADD TO CART{% else %}SOLD OUT{% endif %}
+        </button>
+      {%- endform -%}
+
+      <div class="simple-description">
+        {{ product.description }}
+      </div>
     </div>
   </div>
 </div>
 
 <style>
-.custom-pdp {
-  display: flex;
-  flex-wrap: wrap;
-  width: 100vw;
-  min-height: 100vh;
-}
-.custom-pdp-left {
-  flex: 0 0 60%;
+/* Simplified Product Page Layout */
+.simple-product-page {
   position: relative;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 60px 20px;
+}
+
+/* Kept background for color */
+.am-background {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 1) 0%, rgba(240, 240, 240, 1) 40%, rgba(200, 200, 200, 1) 70%, rgba(20, 20, 20, 0.9) 100%);
+}
+
+.simple-container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  max-width: 1200px;
+  gap: 60px;
+}
+
+/* Left Column */
+.simple-left-col {
+  flex: 1.2;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
+  gap: 20px;
 }
-.custom-pdp-right {
-  flex: 0 0 40%;
-  padding: 100px 40px 40px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-.back-link-wrapper {
-  position: absolute;
-  top: 40px;
-  left: 40px;
-}
-.pdp-back-link {
-  font-weight: 700;
-  font-size: 13px;
-  text-decoration: none;
-  letter-spacing: 0.1em;
-  color: #888;
-}
-.pdp-back-link:hover {
-  color: #000;
-}
-.pdp-image-wrapper {
-  flex: 1;
+
+.simple-main-image-wrapper {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.pdp-main-image {
-  max-height: 80vh;
-  width: auto;
+
+.simple-main-image {
+  width: 100%;
+  height: 100%;
   object-fit: contain;
 }
-.pdp-thumbnails {
+
+.simple-thumbnails {
   display: flex;
-  gap: 10px;
-  margin-top: 20px;
+  gap: 15px;
+  flex-wrap: wrap;
 }
-.pdp-thumb {
-  width: 60px;
-  height: 60px;
-  object-fit: contain;
+
+.simple-thumb-btn {
+  width: 80px;
+  height: 80px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  background: transparent;
+  padding: 5px;
   cursor: pointer;
-  border: 1px solid transparent;
+  transition: border-color 0.2s ease;
 }
-.pdp-thumb:hover {
+.simple-thumb-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.simple-thumb-btn.is-active, .simple-thumb-btn:hover {
   border-color: #000;
 }
 
-.pdp-title {
-  font-size: 48px;
-  font-weight: 700;
-  margin: 0 0 16px;
-  line-height: 1.1;
-  text-transform: uppercase;
+/* Right Column */
+.simple-right-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-top: 20px;
 }
-.pdp-price {
-  font-size: 24px;
-  font-weight: 700;
+
+.simple-title {
+  font-family: monospace, sans-serif;
+  font-size: 28px;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin: 0 0 20px;
+  line-height: 1.2;
+}
+
+.simple-price {
+  font-family: monospace, sans-serif;
+  font-size: 20px;
+  font-weight: bold;
+  margin: 0 0 40px;
+}
+
+/* Form Styles */
+.simple-product-form {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
   margin-bottom: 40px;
 }
-.pdp-option {
-  margin-bottom: 24px;
-}
-.pdp-option label {
-  display: block;
-  font-size: 11px;
-  text-transform: uppercase;
-  margin-bottom: 8px;
-  font-weight: 700;
-  color: #888;
-  letter-spacing: 0.1em;
-}
-.pdp-option-values {
+
+.simple-variants {
   display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.simple-option {
+  display: flex;
+  flex-direction: column;
   gap: 10px;
 }
-.pdp-swatch input {
+
+.simple-option-label {
+  font-family: monospace, sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.simple-option-values {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0; /* Boxy layout with touching borders or slight gap */
+}
+
+.simple-swatch input {
   display: none;
 }
-.pdp-swatch span {
-  display: inline-block;
-  padding: 8px 16px;
-  border: 1px solid #CCC;
-  cursor: pointer;
-  text-transform: uppercase;
+
+.simple-swatch-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 60px;
+  height: 50px;
+  padding: 0 15px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  font-family: monospace, sans-serif;
   font-size: 14px;
-}
-.pdp-swatch input:checked + span {
-  border-color: #000;
-  background-color: #000;
-  color: #FFF;
-}
-.pdp-quantity {
-  margin-bottom: 40px;
-}
-.pdp-quantity label {
-  display: block;
-  font-size: 11px;
+  font-weight: bold;
   text-transform: uppercase;
-  margin-bottom: 8px;
-  font-weight: 700;
-  color: #888;
-  letter-spacing: 0.1em;
-}
-.qty-stepper {
-  display: inline-flex;
-  border: 1px solid #CCC;
-}
-.qty-stepper button {
+  cursor: pointer;
   background: transparent;
-  border: none;
-  width: 40px;
-  height: 40px;
-  font-size: 18px;
-  cursor: pointer;
+  margin-right: -1px; /* Overlap borders */
+  margin-bottom: 10px;
 }
-.qty-stepper input {
-  border: none;
-  width: 50px;
-  text-align: center;
+
+.simple-swatch input:checked + .simple-swatch-box {
+  border-color: #000;
+  border-width: 1px;
+  position: relative;
+  z-index: 1;
+  /* Add an "X" or just solid border to match active state, but color is same */
+  background: rgba(0,0,0,0.05);
+}
+
+.simple-add-to-cart {
+  background: transparent;
+  color: #000;
+  border: 1px solid rgba(0,0,0,0.2);
+  padding: 15px 20px;
+  font-family: monospace, sans-serif;
   font-size: 16px;
-  -moz-appearance: textfield;
-}
-.qty-stepper input::-webkit-outer-spin-button,
-.qty-stepper input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-.btn-add-to-cart {
-  width: 100%;
-  background: #000;
-  color: #FFF;
-  border: none;
-  padding: 20px;
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-weight: bold;
   text-transform: uppercase;
   cursor: pointer;
-  transition: opacity 0.2s;
+  width: max-content;
+  min-width: 200px;
+  text-align: center;
+  transition: border-color 0.2s ease, background 0.2s ease;
 }
-.btn-add-to-cart:hover {
-  opacity: 0.9;
+.simple-add-to-cart:hover {
+  border-color: #000;
+  background: rgba(0,0,0,0.05);
 }
-.btn-add-to-cart.disabled {
-  background: #CCC;
+.simple-add-to-cart.disabled {
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-.pdp-description-accordion {
-  margin-top: 60px;
-  border-top: 1px solid #EEE;
-}
-.pdp-description-accordion details {
-  padding: 20px 0;
-  border-bottom: 1px solid #EEE;
-}
-.pdp-description-accordion summary {
-  font-size: 13px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  cursor: pointer;
-  list-style: none;
-}
-.pdp-description-accordion summary::marker {
-  display: none;
-}
-.pdp-description-accordion summary::-webkit-details-marker {
-  display: none;
-}
-.accordion-content {
-  margin-top: 20px;
+.simple-description {
+  font-family: monospace, sans-serif;
   font-size: 14px;
-  line-height: 1.6;
-  color: #444;
+  line-height: 1.8;
+  padding-top: 30px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-@media (max-width: 767px) {
-  .custom-pdp-left {
-    flex: 0 0 100%;
-    padding: 20px;
-    height: 70vh;
+.simple-description ul {
+  padding-left: 20px;
+  margin: 10px 0;
+}
+
+.simple-description li {
+  margin-bottom: 8px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .simple-container {
+    flex-direction: column;
+    gap: 40px;
   }
-  .custom-pdp-right {
-    flex: 0 0 100%;
-    padding: 20px;
-  }
-  .pdp-title {
-    font-size: 32px;
-  }
-  .back-link-wrapper {
-    top: 20px;
-    left: 20px;
+  
+  .simple-main-image-wrapper {
+    aspect-ratio: auto;
   }
 }
 </style>
 
 <script>
-  // Simplified variant selection logic
-  document.querySelectorAll('.pdp-swatch input').forEach(input => {
-    input.addEventListener('change', () => {
-      // In a real theme, this would update the hidden variant ID input
-      // based on selected options and product JSON.
-      // This is left simple for the PRD concept styling scope.
+document.addEventListener('DOMContentLoaded', () => {
+  // Thumbnail Switcher
+  const mainImage = document.getElementById('simple-main-image');
+  const thumbs = document.querySelectorAll('.simple-thumb-btn');
+  
+  thumbs.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const newSrc = btn.getAttribute('data-image');
+      if (mainImage && newSrc) {
+        mainImage.src = newSrc;
+        thumbs.forEach(t => t.classList.remove('is-active'));
+        btn.classList.add('is-active');
+      }
     });
   });
+});
 </script>
 
 {% schema %}
 {
-  "name": "Product Information",
-  "settings": [
-    {
-      "type": "checkbox",
-      "id": "enable_sticky_info",
-      "label": "Enable sticky info",
-      "default": true
-    },
-    {
-      "type": "select",
-      "id": "color_scheme",
-      "options": [
-        { "value": "scheme-1", "label": "Scheme 1" }
-      ],
-      "default": "scheme-1",
-      "label": "Color scheme"
-    },
-    {
-      "type": "select",
-      "id": "media_size",
-      "options": [
-        { "value": "large", "label": "Large" }
-      ],
-      "default": "large",
-      "label": "Media size"
-    },
-    {
-      "type": "checkbox",
-      "id": "constrain_to_viewport",
-      "label": "Constrain to viewport",
-      "default": true
-    },
-    {
-      "type": "select",
-      "id": "media_fit",
-      "options": [
-        { "value": "contain", "label": "Contain" }
-      ],
-      "default": "contain",
-      "label": "Media fit"
-    },
-    {
-      "type": "select",
-      "id": "gallery_layout",
-      "options": [
-        { "value": "stacked", "label": "Stacked" }
-      ],
-      "default": "stacked",
-      "label": "Gallery layout"
-    },
-    {
-      "type": "select",
-      "id": "mobile_thumbnails",
-      "options": [
-        { "value": "hide", "label": "Hide" }
-      ],
-      "default": "hide",
-      "label": "Mobile thumbnails"
-    },
-    {
-      "type": "select",
-      "id": "media_position",
-      "options": [
-        { "value": "left", "label": "Left" }
-      ],
-      "default": "left",
-      "label": "Media position"
-    },
-    {
-      "type": "select",
-      "id": "image_zoom",
-      "options": [
-        { "value": "lightbox", "label": "Lightbox" }
-      ],
-      "default": "lightbox",
-      "label": "Image zoom"
-    },
-    {
-      "type": "checkbox",
-      "id": "hide_variants",
-      "label": "Hide variants",
-      "default": true
-    },
-    {
-      "type": "checkbox",
-      "id": "enable_video_looping",
-      "label": "Enable video looping",
-      "default": false
-    },
-    {
-      "type": "range",
-      "id": "padding_top",
-      "min": 0,
-      "max": 100,
-      "step": 4,
-      "unit": "px",
-      "label": "Padding top",
-      "default": 36
-    },
-    {
-      "type": "range",
-      "id": "padding_bottom",
-      "min": 0,
-      "max": 100,
-      "step": 4,
-      "unit": "px",
-      "label": "Padding bottom",
-      "default": 12
-    }
-  ],
-  "blocks": [
-    {
-      "type": "text",
-      "name": "Text",
-      "settings": [
-        {
-          "type": "text",
-          "id": "text",
-          "label": "Text"
-        },
-        {
-          "type": "text",
-          "id": "text_style",
-          "label": "Text Style"
-        }
-      ]
-    },
-    {
-      "type": "title",
-      "name": "Title",
-      "limit": 1
-    },
-    {
-      "type": "price",
-      "name": "Price",
-      "limit": 1
-    },
-    {
-      "type": "quantity_selector",
-      "name": "Quantity selector",
-      "limit": 1
-    },
-    {
-      "type": "variant_picker",
-      "name": "Variant picker",
-      "limit": 1,
-      "settings": [
-        {
-          "type": "select",
-          "id": "picker_type",
-          "options": [
-            { "value": "button", "label": "Button" }
-          ],
-          "default": "button",
-          "label": "Picker type"
-        },
-        {
-          "type": "select",
-          "id": "swatch_shape",
-          "options": [
-            { "value": "circle", "label": "Circle" }
-          ],
-          "default": "circle",
-          "label": "Swatch shape"
-        }
-      ]
-    },
-    {
-      "type": "buy_buttons",
-      "name": "Buy buttons",
-      "limit": 1,
-      "settings": [
-        {
-          "type": "checkbox",
-          "id": "show_dynamic_checkout",
-          "label": "Show dynamic checkout",
-          "default": true
-        },
-        {
-          "type": "checkbox",
-          "id": "show_gift_card_recipient",
-          "label": "Show gift card recipient",
-          "default": true
-        }
-      ]
-    },
-    {
-      "type": "description",
-      "name": "Description",
-      "limit": 1
-    },
-    {
-      "type": "share",
-      "name": "Share",
-      "limit": 1,
-      "settings": [
-        {
-          "type": "text",
-          "id": "share_label",
-          "label": "Share label"
-        }
-      ]
-    }
-  ]
+  "name": "Main Product (Simple)",
+  "settings": []
 }
 {% endschema %}
